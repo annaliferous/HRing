@@ -211,7 +211,9 @@
   }
   function vibrationactivated(){
     console.log("vibration activated in 1000 mellisecond");
-  }  
+  }
+  var Tinitial=0;
+  var Tcurrenttime;  
   function displayLocationElevation(location, elevator, infowindow) {
     // Initiate the location request
     elevator
@@ -223,29 +225,22 @@
         // Retrieve the first result
         if (results[0]) {
           socket.emit('servoposition_elevation', { "status":results[0].elevation.toString() });
-          var intensity=maprange(results[0].elevation,0,2600,0,1000);
+          var intensity=maprange(results[0].elevation,0,2600,0,500);
           console.log(intensity);
-          var on = intensity, off = duration-intensity, duration = 1000;
+          var on = intensity, off = duration-intensity, duration = 500;
           //Haptics.pwm(duration, on, off)
             
-            var Tinitial=0;
-            var Tcurrenttime=0;
-            setInterval(() => {
-              Tcurrenttime++;
-              console.log(Tcurrenttime++);
+            
+              Tcurrenttime=Date.now();
+              console.log("this time in melli second",Tcurrenttime);
+              
               if(Tcurrenttime>Tinitial+duration){
                 Haptics.pwm(duration, on, off);
                 Tinitial=Tcurrenttime;
               }
-              else{ } 
-            },1);
-            
-
-            //setTimeout(displayLocationElevation, 200);
-            
-            //setInterval(() => {
-                //Haptics.pwm(duration, on, off); 
-            //}, 1000);      
+              else{
+                
+              } 
             
           // Open the infowindow indicating the elevation at the clicked position.
           infowindow.setContent(
