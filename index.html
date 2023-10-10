@@ -8,6 +8,8 @@
         <!--<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>-->
        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js" integrity="sha512-xbQU0+iHqhVt7VIXi6vBJKPh3IQBF5B84sSHdjKiSccyX/1ZI7Vnkt2/8y8uruj63/DVmCxfUNohPNruthTEQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
        <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script> 
        <script type="text/javascript" src="/haptics.js"></script>
 
        <style>
@@ -49,8 +51,20 @@
  * Always set the map height explicitly to define the size of the div element
  * that contains the map. 
  */
+ #infoPanel {
+  float: left;
+  margin-left: 10px;
+  }
+  #infoPanel div {
+  margin-bottom: 5px;
+}
   #map {
-    height: 100%;
+    height:70%;
+    width:70%;
+    float: left;
+  /*width: 1200px;
+  height: 1000px;
+  float: left;*/
   }
   
   /* 
@@ -82,11 +96,18 @@
         <p>Value: <span id="demo"></span></p>
         </div>
         <div id="map"></div>  
+        <div id="infoPanel">
+          <b>elevation value:</b>
+          <div id="markerelevationvalue"><i>drag the marker to see the elevation value.</i></div>
+          <b>User hint:</b>
+          <div id="info"></div>
+          
+        </div>
 
         <script>
             
-        //var socket = io("ws://localhost:5500");
-        var socket = io('http://10.163.181.24:5501');
+        //var socket = io("ws://localhost:5501");
+        var socket = io('http://10.163.181.38:5501');
         //var socket = io('http://192.168.178.22:5501');
         document.getElementById('lightOn').onclick = function() {
             
@@ -131,92 +152,58 @@
         socket.emit('servoposition', { "status":output.innerHTML });
         }
 
-        function initMap() {
-    const map = new google.maps.Map(document.getElementById("map"), {
-      zoom: 8,
-      center: { lat: 48.137154, lng: 11.576124 },
-      mapTypeId: "terrain",
-    });
-    const elevator = new google.maps.ElevationService();
-    const infowindow = new google.maps.InfoWindow({});
-    var marker = new google.maps.Marker({
-      position: { lat: 48.137154, lng: 11.576124 },
-      map: map,
-      draggable: true,
-      title: 'Your position'
-    });
+        var map = L.map('map').setView([48.1351, 11.5820], 8);
 
-    const infowindowoption = {
-      map:map,
-      anchor:marker,
-      shouldFocus:true
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-  }
-    infowindow.open(infowindowoption);
-    //infowindow.open(map);
-    // Add a listener for the click event. Display the elevation for the LatLng of
-    // the click inside the infowindow.
-    map.addListener("click", (event) => {
-      displayLocationElevation(event.latLng, elevator, infowindow);
-    });
+        var marker=L.marker([48.1351, 11.5820],{draggable:true}).bindPopup();
+        //var poppup=marker.bindPopup('position is'+marker.getLatLng()).openPopup();
+        marker.addTo(map);
+        var circle1 = L.circle([51.5413, 9.9158], {
+        color: 'red',
+        fillColor: '#f03',
+        fillOpacity: 0.5,
+        radius: 6000
+        }).addTo(map);
 
-    google.maps.event.addListener(marker, 'dragstart', function(event) {
-      console.log("start postion changed");
-      displayLocationElevation(event.latLng, elevator, infowindow);
-      console.log(displayLocationElevation(event.latLng, elevator, infowindow));
-      vibrate(3000);
-    });
-
-    google.maps.event.addListener(marker, 'drag', function(event) {
-      console.log(" postion changed");
-      displayLocationElevation(event.latLng, elevator, infowindow);
-      console.log(displayLocationElevation(event.latLng, elevator, infowindow));
-      vibrate(2000);
-    });
-
-    google.maps.event.addListener(marker, 'dragend', function(event) {
-      console.log("finally postion changed");
-      displayLocationElevation(event.latLng, elevator, infowindow);
-      console.log(displayLocationElevation(event.latLng, elevator, infowindow));
-      //vibrate(0);
-    });
+        var circle2 = L.circle([47.4211, 10.9854], {
+        color: 'blue',
+        fillColor: '#5f1ee3',
+        fillOpacity: 0.5,
+        radius: 6000
+        }).addTo(map);
+        marker.addTo(map);
 
 
-
-  }
-  
-  function displayLocationElevation(location, elevator, infowindow) {
-    // Initiate the location request
-    elevator
-      .getElevationForLocations({
-        locations: [location],
-      })
-      .then(({ results }) => {
-        infowindow.setPosition(location);
-        // Retrieve the first result
-        if (results[0]) {
-          socket.emit('servoposition_elevation', { "status":results[0].elevation.toString() });
-          // Open the infowindow indicating the elevation at the clicked position.
-          infowindow.setContent(
-            "The elevation at this point <br>is " +
-              results[0].elevation +
-              " meters."
-          );
-        } else {
-          infowindow.setContent("No results found");
+        marker.on('drag', getElevation);
+                  
+        function getElevation(){
+	      var latlng = marker.getLatLng();
+        //marker.getPopup().setContent('clicked here '+marker.getLatLng().toString()).openOn(map);
+        
+        
+        //const api_url='http://neginhome.ddns.net:5000/v1/test-dataset?locations='+latlng.lat+','+latlng.lng;
+        //const api_url='http://localhost:5000/v1/test-dataset?locations='+latlng.lat+','+latlng.lng;
+        const api_url='http://10.163.181.38:5000/v1/test-dataset?locations='+latlng.lat+','+latlng.lng;
+        //const response= fetch(api_url).then(response => response.json()).then(data=>console.log(data.results[0].elevation));
+        const response= fetch(api_url).then(response => response.json()).then((data)=>{document.getElementById('markerelevationvalue').innerHTML = data.results[0].elevation;
+        //console.log(data.results[0].elevation);
+        
+        if(data.results[0].elevation>=0){
+        var elevationtest=Math.floor(data.results[0].elevation)
+        //console.log(elevationtest);
+        socket.emit('servoposition_elevation', { "status":elevationtest.toString() });
+        } else{}
+        /*marker.getPopup().setContent('Elevation value:'+data.results[0].elevation).openOn(map)*/
+        });
+        
+        //console.log('API Response: ',response);
+         
         }
-      })
-      .catch((e) =>
-        infowindow.setContent("Elevation service failed due to: " + e)
-      );
-  }
-  
-  
-  window.initMap = initMap;
+         
         </script>
-       <script
-       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD255av8K7KhBUMOaLPMwk4hX116Jkv6_U&callback=initMap&v=weekly"
-       defer
-     ></script> 
+       
     </body>
 </html>
