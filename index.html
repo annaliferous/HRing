@@ -11,15 +11,19 @@
        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script> 
        <script type="text/javascript" src="/haptics.js"></script>
+       <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+       <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
 
        <style>
         .slidecontainer {
-          width: 100%;
+          width: 50%;
+          padding-left: 200px;
         }
         
         .slider {
           -webkit-appearance: none;
-          width: 100%;
+          width: 50%;
+          position: fixed;
           height: 25px;
           background: #d3d3d3;
           outline: none;
@@ -52,16 +56,20 @@
  * that contains the map. 
  */
  #infoPanel {
-  float: left;
-  margin-left: 10px;
+  /*float: right;
+  margin-left: 10px;*/
+  position: absolute;
+  top: 10px;
+  right: 10px;
   }
   #infoPanel div {
-  margin-bottom: 5px;
+  margin-top: 5px;
 }
   #map {
-    height:70%;
-    width:70%;
+    height:50%;
+    width:100%;
     float: left;
+    top: 113px;
   /*width: 1200px;
   height: 1000px;
   float: left;*/
@@ -75,13 +83,14 @@
     height: 100%;
     margin: 0;
     padding: 0;
+    touch-action: none;
   }
         </style>
     </head>
     <body>
 
-        <h1>Communicating from Node.js to an Arduino</h1>
-
+        <!--<h1>Communicating from Node.js to an Arduino</h1>-->
+        <!--
         <button id="lightOn">Turn Light On</button>
         <button id="lightOff">Turn Light Off</button><br><br>
         <p id="isSupported">Vibration is not supported on this device</p>
@@ -90,9 +99,9 @@
 
         <h1>Custom Range Slider</h1>
         <p>Drag the slider to display the current value.</p>
-
+          -->
         <div class="slidecontainer">
-        <input type="range" min="1" max="180" value="1" class="slider" id="myRange">
+        <input type="range" min="52" max="1275" value="1" class="slider" id="myRange">
         <p>Value: <span id="demo"></span></p>
         </div>
         <div id="map"></div>  
@@ -106,20 +115,20 @@
 
         <script>
             
-        //var socket = io("ws://localhost:5501");
-        var socket = io('http://10.163.181.38:5501');
+        var socket = io("ws://localhost:5501");
+        //var socket = io('http://10.163.181.92:5501');
         //var socket = io('http://192.168.178.22:5501');
-        document.getElementById('lightOn').onclick = function() {
+        //document.getElementById('lightOn').onclick = function() {
             
-            socket.emit('lights', { "status":"1" });
+            //socket.emit('lights', { "status":"1" });
                 
-        };
+        //};
             
-        document.getElementById('lightOff').onclick = function(){
+        //document.getElementById('lightOff').onclick = function(){
                
-            socket.emit('lights', { "status":"0" });
+            //socket.emit('lights', { "status":"0" });
             
-        };
+        //};
         
         function vibrate(ms){
         const para = document.getElementById('isSupported')
@@ -146,29 +155,37 @@
 
 
         output.innerHTML = slider.value;
+        
 
         slider.oninput = function() {
         output.innerHTML = this.value;
-        socket.emit('servoposition', { "status":output.innerHTML });
+        //console.log(output.innerHTML);
+        var slidervalue=parseInt(output.innerHTML);
+        var slidertoservo=maprange(slidervalue,52,1275,0,180);
+        //socket.emit('servoposition', { "status":output.innerHTML });
+        socket.emit('servoposition', { "status":slidertoservo.toString() });
         }
+        
 
-        var map = L.map('map').setView([48.1351, 11.5820], 8);
+        var map = L.map('map').setView([51.55, 9.99], 6);
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var marker=L.marker([48.1351, 11.5820],{draggable:true}).bindPopup();
+        map.addControl(new L.Control.Fullscreen());
+
+        var marker=L.marker([53.556130, 9.99818],{draggable:true}).bindPopup();
         //var poppup=marker.bindPopup('position is'+marker.getLatLng()).openPopup();
         marker.addTo(map);
-        var circle1 = L.circle([51.5413, 9.9158], {
+        var circle1 = L.circle([53.556130, 9.99818], {
         color: 'red',
         fillColor: '#f03',
         fillOpacity: 0.5,
         radius: 6000
         }).addTo(map);
 
-        var circle2 = L.circle([47.4211, 10.9854], {
+        var circle2 = L.circle([47.3982, 11.11831], {
         color: 'blue',
         fillColor: '#5f1ee3',
         fillOpacity: 0.5,
@@ -181,26 +198,56 @@
                   
         function getElevation(){
 	      var latlng = marker.getLatLng();
+        //console.log(latlng);
         //marker.getPopup().setContent('clicked here '+marker.getLatLng().toString()).openOn(map);
         
         
         //const api_url='http://neginhome.ddns.net:5000/v1/test-dataset?locations='+latlng.lat+','+latlng.lng;
         //const api_url='http://localhost:5000/v1/test-dataset?locations='+latlng.lat+','+latlng.lng;
-        const api_url='http://10.163.181.38:5000/v1/test-dataset?locations='+latlng.lat+','+latlng.lng;
+        const api_url='http://localhost:5000/v1/test-dataset?locations='+latlng.lat+','+latlng.lng;
         //const response= fetch(api_url).then(response => response.json()).then(data=>console.log(data.results[0].elevation));
         const response= fetch(api_url).then(response => response.json()).then((data)=>{document.getElementById('markerelevationvalue').innerHTML = data.results[0].elevation;
         //console.log(data.results[0].elevation);
         
+        //console.log(slider.value);
+
+        
         if(data.results[0].elevation>=0){
-        var elevationtest=Math.floor(data.results[0].elevation)
-        //console.log(elevationtest);
-        socket.emit('servoposition_elevation', { "status":elevationtest.toString() });
+        //var elevationtest=Math.floor(data.results[0].elevation);
+        //console.log(typeof(Math.floor(slider.value)));
+        //var elevationtest= Math.floor(slider.value) + data.results[0].elevation;
+            
+        
+        //new method
+            //if(Math.floor(slider.value)<data.results[0].elevation){
+              //var elevationtest= data.results[0].elevation;
+              //socket.emit('servoposition_elevation', { "status":elevationtest.toString() });
+            //}
+            //else{
+              //var elevationtest= Math.floor(slider.value);
+              //socket.emit('servoposition_elevation', { "status":elevationtest.toString() });
+            //}
+                
+            var servominouput= maprange(parseInt(slider.value),52,1275,0,180);
+            //console.log(servominouput);
+            var minoutput=parseInt(servominouput);  
+            //console.log(minoutput);
+            
+            var servodegree=maprange(data.results[0].elevation,52,1275,minoutput,180);
+            servodegree=parseInt(servodegree);    
+             //console.log(servodegree);   
+            //console.log(elevationtest);
+            socket.emit('servoposition_elevation', { "status":servodegree.toString() });
         } else{}
         /*marker.getPopup().setContent('Elevation value:'+data.results[0].elevation).openOn(map)*/
         });
         
         //console.log('API Response: ',response);
          
+        }
+
+        function maprange(value,min1,max1,min2,max2){
+          return((value-min1)*(max2-min2))/(max1-min1)+min2;
         }
          
         </script>

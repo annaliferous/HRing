@@ -11,6 +11,8 @@ Pwm pwm = Pwm();
 
 const int servoPin = D1;
 const int servoPin2 = D2;
+//int value;
+int valueposition;
 
 //const char* ssid     = "iPhone von Bilel";
 //const char* password = "6bfabuw7jetsg";
@@ -62,19 +64,21 @@ void loop() {
     // Loop through received data and append to the receivedString variable
     while (Serial.available() > 0) {
       receivedString += char(Serial.read ());
+       //value = Serial.parseInt();
     }
     
     // Print received Serial data
-    Serial.println(receivedString); 
+    //Serial.println(receivedString);
     
     int value=receivedString.toInt();
-    value=map(value, 0, 1023, 0, 180);
-    while(value==0)  
-    {}
-    //for (int pos = 0; pos <= value; pos++) {  // go from 0-180 degrees
-       pwm.writeServo(servoPin, value);
-       pwm.writeServo(servoPin2, value);        // set the servo position (degrees)
+     
+    //valueposition=map(value, 0, 1400, 0, 180);
+
     
+       pwm.writeServo(servoPin,value);
+       pwm.writeServo(servoPin2,value);        
+       //Serial.println("Value is positive");
+   
     //}
 
     //if(receivedString == "10")
