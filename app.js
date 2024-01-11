@@ -1,11 +1,13 @@
 var http = require('http');
 var fs = require('fs');
-var index = fs.readFileSync( 'index.html');
-
+const { convertArrayToCSV } = require('convert-array-to-csv');
 const { SerialPort } = require('serialport')
 const { ReadlineParser } = require('@serialport/parser-readline')
 const { Server } = require("socket.io");
 
+var dataArrays = [];
+const header = ['elevationvalue','Time','Latitude','Longitude','Scenario'];
+var index = fs.readFileSync( 'index.html');
 const parser = new ReadlineParser({ delimiter: '\r\n' });
 
 var port = new SerialPort(
@@ -47,7 +49,7 @@ io.on('connection', function(socket) {
 
     socket.on('servoposition',function(data){
         
-        console.log( data );
+        //console.log( data );
         
         port.write( data.status );
     
@@ -55,14 +57,74 @@ io.on('connection', function(socket) {
 
     socket.on('servoposition_elevation',function(data){
         
-        console.log( data );
+        //console.log( data );
         
         port.write( data.status );
+        exportcsvservo(data);
+    
+    });
+
+    socket.on('vibrationmotorcalibration',function(data){
+        
+        //console.log('vibrationmotorcalibration: ', data );
+        
+        port.write( data.status );
+    
+    });
+
+    socket.on('motor_elevation',function(data){
+        
+        //console.log('motor_elevation: ', data );
+        
+        port.write( data.status );
+        exportcsv(data);
     
     });
     
 });
 
-app.listen(5500,"localhost");
-//app.listen(5500,"10.181.128.6");
+//app.listen(5501,"localhost");
+
+function exportcsv(data){
+    //console.log("X",data);
+    dataArrays = [
+        [ data.elevation,new Date().toString(),data.Latitude,data.Longitude,data.Scenario]
+        ];
+      
+      const csvFromArrayOfArrays = convertArrayToCSV(dataArrays, {
+        header,
+        separator: ','
+      });
+        fs.appendFileSync('vmotorouput.csv', csvFromArrayOfArrays, err =>{
+        if(err){
+            console.log(18, err);
+        }
+
+
+        console.log('CSV File saved successfully');
+        })
+    }
+
+
+    function exportcsvservo(data){
+        //console.log("X",data);
+        dataArrays = [
+            [ data.elevation,new Date().toString(),data.Latitude,data.Longitude,data.Scenario]
+            ];
+          
+          const csvFromArrayOfArrays = convertArrayToCSV(dataArrays, {
+            header,
+            separator: ','
+          });
+            fs.appendFileSync('servomotorouput.csv', csvFromArrayOfArrays, err =>{
+            if(err){
+                console.log(18, err);
+            }
+    
+    
+            console.log('CSV File saved successfully');
+            })
+        }
+
+app.listen(5501,"localhost");
 
