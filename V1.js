@@ -1,3 +1,6 @@
+if(!window.sessionStorage.getItem('clientId')){
+  window.sessionStorage.setItem("clientId", Math.random(0,20));
+}
 
 let data = [{
   "land": "de-increase-vertical",
@@ -18,17 +21,25 @@ let data = [{
 }, {
   "land": "sp-Bump-vertical",
   "elevation": { "min": 350, "max": 1128},
-  "start": { "lat": 43.229195113965005, "long": -4.240744829809729}, "end": { "lat": 37.71859032558816, "long": -3.849034239413561}, "setview": { "lat": 43.13306116240615, "long": -4.420467430051805 }
+  "start": { "lat": 43.229195113965005, "long": -4.240744829809729}, "end": { "lat": 37.71859032558816, "long": -3.849034239413561}, "setview": { "lat": 40.13306116240615, "long": -4.420467430051805 }
 }, {
   "land": "sp-Bump-horizantal",
   "elevation": { "min": 392, "max": 1280},
   "start": { "lat": 40.16208338164619, "long": -8.394558041077802}, "end": { "lat": 39.90973623453719, "long": -0.28460237394266846}, "setview": { "lat": 40.16208338164619, "long": -8.394558041077802 }
+}, {
+  "land": "it-Hole-vertical",
+  "elevation": { "min": 17, "max": 800},
+  "start": { "lat": 45.89000815866184, "long": 11.271961801188953}, "end": { "lat": 43.992814500489914, "long": 11.293945312500002}, "setview": { "lat": 45.78284835197676, "long": 11.294488065553342 }
+}, {
+  "land": "Östereich-Romania-Hole-horizantal",
+  "elevation": { "min": 81, "max": 800},
+  "start": { "lat": 47.29413372501023, "long": 14.943219045198195}, "end": { "lat": 47.08508535995386, "long": 24.725881578622932}, "setview": { "lat": 47.29413372501023, "long": 14.943219045198195 }
 }
 ]
   
-data =  [...randomArray(data)/*,...randomArray(data),...randomArray(data)*/]
+data =  [...randomArray(data)/*,...randomArray(data,1),...randomArray(data,2)*/]
 console.log(data);
-  
+let initialElevator = 0;
 let counter=0;
 let currentPosition = data[0];
 //console.log('data: ',data);
@@ -56,38 +67,39 @@ let currentPosition = data[0];
     
     
       var slidervalue = parseInt(output.innerHTML);
+      initialElevator = slidervalue;
       var slidertovibrationmotor = maprange(slidervalue, currentPosition.elevation.min, currentPosition.elevation.max, 0, 255);
-      
-    
+      //console.log(slidertovibrationmotor);
       socket.emit('vibrationmotorcalibration', { "status": slidertovibrationmotor.toString() });
     }
 
   function getElevation(evt) {
 
     var latlng = evt.latlng;
-   // console.log('counter: ',counter)
+    //console.log(latlng)
    // changePosition({ lat: parseFloat(latlng.lat.toFixed(1)), long: parseFloat(latlng.lng.toFixed(1)) });
     const api_url = 'http://localhost:5000/v1/test-dataset?locations=' + latlng.lat + ',' + latlng.lng;
     const response = fetch(api_url).then(response => response.json()).then((data) => {
       document.getElementById('markerelevationvalue').innerHTML = data.results[0].elevation;
 
       if (data.results[0].elevation >= 0) {
-
-
         var vibrationminouput = maprange(parseInt(slider.value), currentPosition.elevation.min, currentPosition.elevation.max, 0, 255);
-         
         var minoutput = parseInt(vibrationminouput);
-        
-
-
         var vibrationvalue = maprange(data.results[0].elevation, currentPosition.elevation.min , currentPosition.elevation.max, minoutput, 255);
         vibrationvalue = parseInt(vibrationvalue);
-       
+        //console.log(currentPosition.elevation, slider.value ,vibrationvalue);
+       //console.log("vibtaion value during dragging",vibrationvalue);
 
         socket.emit('motor_elevation', { "status": vibrationvalue.toString() , "elevation":data.results[0].elevation.toString(), "Latitude":latlng.lat,"Longitude":latlng.lng, "Scenario":currentPosition.land});
       } else { }
 
     });
+    
+    let length=map.distance(latlng,circle2.getLatLng());
+    
+    var isInside = length < circle2.getRadius();
+    circle2.setStyle({
+      fillColor: isInside ? 'green' : '#5f1ee3'})
 
 
   }
@@ -96,27 +108,14 @@ let currentPosition = data[0];
     return ((value - min1) * (max2 - min2)) / (max1 - min1) + min2;
   }
  
-
-  function changePosition(evt) {
-    //console.log(evt)
-    var lastPos = evt.target._latlng;
-    //console.log(lastPos)
-    const markerPos = { lat: parseFloat(lastPos.lat.toFixed(1)), long: parseFloat(lastPos.lng.toFixed(1)) }
-    
-
-    const findPosition = data.find((position) => {
-      console.log(markerPos,  parseFloat(position.end.lat.toFixed(1)), parseFloat(position.end.long.toFixed(1)))
-      return parseFloat(position.end.lat.toFixed(1)) === markerPos.lat && parseFloat(position.end.long.toFixed(1)) === markerPos.long
-    })
-
-    if(findPosition){
+  function skip(){
+    if(counter === data.length-1){
+      console.log('Senarios finished');
+      return;
+    }
+    if(counter < data.length-1){ 
       counter++;
-      if(counter === data.length){
-        console.log('Senarios finished');
-        return;
-      }
       const nextPos = data[counter];
-      currentPosition = nextPos
       var newStartLatLng = new L.LatLng(nextPos.start.lat, nextPos.start.long);
       var newEndLatLng = new L.LatLng(nextPos.end.lat, nextPos.end.long);
       marker.setLatLng(newStartLatLng);
@@ -124,17 +123,61 @@ let currentPosition = data[0];
       circle1.setLatLng(newStartLatLng)
       circle2.setLatLng(newEndLatLng)
       map.setView([nextPos.setview.lat, nextPos.setview.long], 6);
+    }
+  }
+
+
+  function changePosition(evt) {
+    //console.log(evt)
+    var lastPos = evt.target._latlng;
+    //console.log(lastPos)
+    const markerPos = { lat: parseFloat(lastPos.lat.toFixed(1)), long: parseFloat(lastPos.lng.toFixed(1)) }
+    
+    let length=map.distance(lastPos,circle2.getLatLng());
+    console.log(length);
+    var isInside = length < circle2.getRadius();
+    const findPosition = data.find((position) => {
+     // console.log(markerPos,  parseFloat(position.end.lat.toFixed(1)), parseFloat(position.end.long.toFixed(1)))
+      return parseFloat(position.end.lat.toFixed(1)) === markerPos.lat && parseFloat(position.end.long.toFixed(1)) === markerPos.long
+    })
+
+    
+
+    if(isInside){
+      counter++;
+      if(counter === data.length){
+        console.log('Senarios finished');
+        finichvalue=0;
+        socket.emit('motor_elevation', { "status": finichvalue.toString()});
+        return;
+      }
+      const nextPos = data[counter];
+      currentPosition = nextPos
+      var vibrationminouput = maprange(parseInt(slider.value), currentPosition.elevation.min, currentPosition.elevation.max, 0, 255);
+      //console.log("RESET vibtaion value---> ",vibrationminouput);
+      socket.emit('vibrationmotorreset', { "status": vibrationminouput.toString() });
+      var newStartLatLng = new L.LatLng(nextPos.start.lat, nextPos.start.long);
+      var newEndLatLng = new L.LatLng(nextPos.end.lat, nextPos.end.long);
+      marker.setLatLng(newStartLatLng);
+      //map.setBearing(nextPos.degree);
+      circle1.setLatLng(newStartLatLng)
+      circle2.setLatLng(newEndLatLng)
+      circle2.setStyle({fillColor: 'blue'});
+      map.setView([nextPos.setview.lat, nextPos.setview.long], 6);
     
     }
       
 }
 
   
-  function randomArray(array) {
+  function randomArray(array, acc=0) {
     const nextArray = [...array]
-   
+   // const generator = new Math.seedrandom(Math.random());
+    const generator = new Math.seedrandom((window.sessionStorage.getItem("clientId")??0)+acc) ;
     for (let i = nextArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      //const j = Math.floor(Math.random() * (i + 1));
+      const randomNumber = generator();
+      const j = Math.floor(randomNumber* (i + 1));
       const temp = nextArray[i];
       nextArray[i] = nextArray[j];
       nextArray[j] = temp;
@@ -146,7 +189,7 @@ let currentPosition = data[0];
   var socket = io("ws://localhost:5501");
   var slider = document.getElementById("myRange");
   var output = document.getElementById("demo");
-
+ 
   slider.oninput= onSliderChange
 
   var marker = L.marker([currentPosition.start.lat, currentPosition.start.long], { draggable: true });
@@ -183,10 +226,11 @@ let currentPosition = data[0];
      fillColor: '#5f1ee3',
      fillOpacity: 0.5,
      // radius: 1
-     radius: 6000
+     radius: 34000
  
    }).addTo(map);
    marker.addTo(map);
+ 
    marker.on('drag', getElevation);
    marker.on('dragend', changePosition);
 

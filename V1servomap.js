@@ -1,32 +1,44 @@
+if(!window.sessionStorage.getItem('clientId')){
+  window.sessionStorage.setItem("clientId", Math.random(0,20));
+}
+
 
 let data = [{
-    "land": "de-increase-vertical",
-    "elevation": { "min": 52, "max": 1275},
-    "start": { "lat": 53.556130, "long": 9.99818}, "end": { "lat": 47.3982, "long": 11.11831}, "setview": { "lat": 51.55, "long": 9.99 }
-  }, {
-    "land": "mr-increase-horizantal",
-    "elevation": { "min": 23, "max": 1204},
-    "start": { "lat": 33.9615862897991, "long": -6.836905278558578}, "end": { "lat": 33.94335994657882, "long": -2.9687421419304294}, "setview": { "lat": 33.9615862897991, "long": -6.836905278558578 }
-  }, {
-    "land": "it-decrease-horizantal",
-    "elevation": { "min": 177, "max": 2654},
-    "start": { "lat": 45.8326, "long": 6.8652}, "end": { "lat": 45.521743896993634, "long": 12.591778856022392}, "setview": { "lat": 45.8326, "long": 6.8652 }
-  }, {
-    "land": "it-decrease-vertical",
-    "elevation": { "min": 54, "max": 1378},
-    "start": { "lat": 46.694667307773116, "long": 11.296084918124196}, "end": { "lat": 42.309815415686664, "long": 11.933452707682221}, "setview": { "lat": 46.694667307773116, "long": 11.296084918124196 }
-  }, {
-    "land": "sp-Bump-vertical",
-    "elevation": { "min": 350, "max": 1128},
-    "start": { "lat": 43.229195113965005, "long": -4.240744829809729}, "end": { "lat": 37.71859032558816, "long": -3.849034239413561}, "setview": { "lat": 43.13306116240615, "long": -4.420467430051805 }
-  }, {
-    "land": "sp-Bump-horizantal",
-    "elevation": { "min": 392, "max": 1280},
-    "start": { "lat": 40.16208338164619, "long": -8.394558041077802}, "end": { "lat": 39.90973623453719, "long": -0.28460237394266846}, "setview": { "lat": 40.16208338164619, "long": -8.394558041077802 }
-  }
+  "land": "de-increase-vertical",
+  "elevation": { "min": 52, "max": 1275},
+  "start": { "lat": 53.556130, "long": 9.99818}, "end": { "lat": 47.3982, "long": 11.11831}, "setview": { "lat": 51.55, "long": 9.99 }
+}, {
+  "land": "mr-increase-horizantal",
+  "elevation": { "min": 23, "max": 1204},
+  "start": { "lat": 33.9615862897991, "long": -6.836905278558578}, "end": { "lat": 33.94335994657882, "long": -2.9687421419304294}, "setview": { "lat": 33.9615862897991, "long": -6.836905278558578 }
+}, {
+  "land": "it-decrease-horizantal",
+  "elevation": { "min": 177, "max": 2654},
+  "start": { "lat": 45.8326, "long": 6.8652}, "end": { "lat": 45.521743896993634, "long": 12.591778856022392}, "setview": { "lat": 45.8326, "long": 6.8652 }
+}, {
+  "land": "it-decrease-vertical",
+  "elevation": { "min": 54, "max": 1378},
+  "start": { "lat": 46.694667307773116, "long": 11.296084918124196}, "end": { "lat": 42.309815415686664, "long": 11.933452707682221}, "setview": { "lat": 46.694667307773116, "long": 11.296084918124196 }
+}, {
+  "land": "sp-Bump-vertical",
+  "elevation": { "min": 350, "max": 1128},
+  "start": { "lat": 43.229195113965005, "long": -4.240744829809729}, "end": { "lat": 37.71859032558816, "long": -3.849034239413561}, "setview": { "lat": 40.13306116240615, "long": -4.420467430051805 }
+}, {
+  "land": "sp-Bump-horizantal",
+  "elevation": { "min": 392, "max": 1280},
+  "start": { "lat": 40.16208338164619, "long": -8.394558041077802}, "end": { "lat": 39.90973623453719, "long": -0.28460237394266846}, "setview": { "lat": 40.16208338164619, "long": -8.394558041077802 }
+}, {
+  "land": "it-Hole-vertical",
+  "elevation": { "min": 17, "max": 800},
+  "start": { "lat": 45.89000815866184, "long": 11.271961801188953}, "end": { "lat": 43.992814500489914, "long": 11.293945312500002}, "setview": { "lat": 45.78284835197676, "long": 11.294488065553342 }
+}, {
+  "land": "Östereich-Romania-Hole-horizantal",
+  "elevation": { "min": 81, "max": 800},
+  "start": { "lat": 47.29413372501023, "long": 14.943219045198195}, "end": { "lat": 47.08508535995386, "long": 24.725881578622932}, "setview": { "lat": 47.29413372501023, "long": 14.943219045198195 }
+}
   ]
     
-  data =  [...randomArray(data)/*,...randomArray(data),...randomArray(data)*/]
+  data =  [...randomArray(data)/*,...randomArray(data,1),...randomArray(data,2)*/]
   console.log(data);
     
   let counter=0;
@@ -57,7 +69,7 @@ let data = [{
       
         var slidervalue = parseInt(output.innerHTML);
         var slidertoservonmotor = maprange(slidervalue, currentPosition.elevation.min, currentPosition.elevation.max, 0, 180);
-        
+        //console.log(slidertoservonmotor);
       
         socket.emit('servoposition', { "status": slidertoservonmotor.toString() });
       }
@@ -88,7 +100,12 @@ let data = [{
         } else { }
   
       });
-  
+      
+      let length=map.distance(latlng,circle2.getLatLng());
+    
+      var isInside = length < circle2.getRadius();
+      circle2.setStyle({
+      fillColor: isInside ? 'green' : '#5f1ee3'})
   
     }
   
@@ -96,27 +113,15 @@ let data = [{
       return ((value - min1) * (max2 - min2)) / (max1 - min1) + min2;
     }
    
-  
-    function changePosition(evt) {
-      //console.log(evt)
-      var lastPos = evt.target._latlng;
-      //console.log(lastPos)
-      const markerPos = { lat: parseFloat(lastPos.lat.toFixed(1)), long: parseFloat(lastPos.lng.toFixed(1)) }
-      
-  
-      const findPosition = data.find((position) => {
-        console.log(markerPos,  parseFloat(position.end.lat.toFixed(1)), parseFloat(position.end.long.toFixed(1)))
-        return parseFloat(position.end.lat.toFixed(1)) === markerPos.lat && parseFloat(position.end.long.toFixed(1)) === markerPos.long
-      })
-  
-      if(findPosition){
+    function skip(){
+      if(counter === data.length-1){
+        console.log('Senarios finished');
+
+        return;
+      }
+      if(counter < data.length-1){ 
         counter++;
-        if(counter === data.length){
-          console.log('Senarios finished');
-          return;
-        }
         const nextPos = data[counter];
-        currentPosition = nextPos
         var newStartLatLng = new L.LatLng(nextPos.start.lat, nextPos.start.long);
         var newEndLatLng = new L.LatLng(nextPos.end.lat, nextPos.end.long);
         marker.setLatLng(newStartLatLng);
@@ -124,28 +129,74 @@ let data = [{
         circle1.setLatLng(newStartLatLng)
         circle2.setLatLng(newEndLatLng)
         map.setView([nextPos.setview.lat, nextPos.setview.long], 6);
+      }
+    }
+
+  
+    function changePosition(evt) {
+      //console.log(evt)
+      var lastPos = evt.target._latlng;
+      //console.log(lastPos)
+      const markerPos = { lat: parseFloat(lastPos.lat.toFixed(1)), long: parseFloat(lastPos.lng.toFixed(1)) }
+      
+      let length=map.distance(lastPos,circle2.getLatLng());
+      //console.log(length);
+      var isInside = length < circle2.getRadius();
+  
+      const findPosition = data.find((position) => {
+        console.log(markerPos,  parseFloat(position.end.lat.toFixed(1)), parseFloat(position.end.long.toFixed(1)))
+        return parseFloat(position.end.lat.toFixed(1)) === markerPos.lat && parseFloat(position.end.long.toFixed(1)) === markerPos.long
+      })
+  
+      if(isInside){
+        counter++;
+        if(counter === data.length){
+          console.log('Senarios finished');
+          finichvalue=0;
+          socket.emit('servoposition_elevation', { "status": finichvalue.toString()});
+          return;
+        }
+        const nextPos = data[counter];
+        currentPosition = nextPos
+
+        var calibrationouput = maprange(parseInt(slider.value), currentPosition.elevation.min, currentPosition.elevation.max, 0, 180);
+        socket.emit('servocalibrationmotorreset', { "status": calibrationouput.toString() });
+
+        var newStartLatLng = new L.LatLng(nextPos.start.lat, nextPos.start.long);
+        var newEndLatLng = new L.LatLng(nextPos.end.lat, nextPos.end.long);
+        marker.setLatLng(newStartLatLng);
+        //map.setBearing(nextPos.degree);
+        circle1.setLatLng(newStartLatLng)
+        circle2.setLatLng(newEndLatLng)
+        circle2.setStyle({fillColor: 'blue'});
+        map.setView([nextPos.setview.lat, nextPos.setview.long], 6);
       
       }
         
   }
   
     
-    function randomArray(array) {
-      const nextArray = [...array]
-     
-      for (let i = nextArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const temp = nextArray[i];
-        nextArray[i] = nextArray[j];
-        nextArray[j] = temp;
-      
-      }
-      return nextArray
+  function randomArray(array, acc=0) {
+    const nextArray = [...array]
+   // const generator = new Math.seedrandom(Math.random());
+    const generator = new Math.seedrandom((window.sessionStorage.getItem("clientId")??0)+acc) ;
+    for (let i = nextArray.length - 1; i > 0; i--) {
+      //const j = Math.floor(Math.random() * (i + 1));
+      const randomNumber = generator();
+      const j = Math.floor(randomNumber* (i + 1));
+      const temp = nextArray[i];
+      nextArray[i] = nextArray[j];
+      nextArray[j] = temp;
+    
     }
+    return nextArray
+  }
   
     var socket = io("ws://localhost:5501");
     var slider = document.getElementById("myRange");
     var output = document.getElementById("demo");
+
+    
   
     slider.oninput= onSliderChange
   
@@ -183,7 +234,7 @@ let data = [{
        fillColor: '#5f1ee3',
        fillOpacity: 0.5,
        // radius: 1
-       radius: 6000
+       radius: 34000
    
      }).addTo(map);
      marker.addTo(map);
