@@ -6,7 +6,7 @@ const { ReadlineParser } = require('@serialport/parser-readline')
 const { Server } = require("socket.io");
 
 var dataArrays = [];
-const header = ['elevationvalue','Time','Latitude','Longitude','Scenario'];
+const header = ['elevationvalue','Time','Latitude','Longitude','Scenario','scenarionumber'];
 var index = fs.readFileSync( 'index.html');
 const parser = new ReadlineParser({ delimiter: '\r\n' });
 
@@ -57,7 +57,7 @@ io.on('connection', function(socket) {
 
     socket.on('servoposition_elevation',function(data){
         
-        //console.log( data );
+        //console.log( data.status );
         
         port.write( data.status );
         exportcsvservo(data);
@@ -81,6 +81,31 @@ io.on('connection', function(socket) {
     
     });
     
+    socket.on('vibrationmotorreset',function(data){
+        
+        console.log('motor_elevation_reset: ', data );
+        
+        port.write( data.status );
+        
+    
+    });
+
+    socket.on('servocalibrationmotorreset',function(data){
+        
+        console.log('servo_elevation_reset: ', data );
+        
+        port.write( data.status );
+        
+    
+    });
+    socket.on('servoposition_elevation_finich',function(data){
+        
+        console.log('servoposition_elevation_finich: ', data );
+        
+        port.write( data.status );
+        
+    
+    });
 });
 
 //app.listen(5501,"localhost");
@@ -88,14 +113,15 @@ io.on('connection', function(socket) {
 function exportcsv(data){
     //console.log("X",data);
     dataArrays = [
-        [ data.elevation,new Date().toString(),data.Latitude,data.Longitude,data.Scenario]
+        [ data.elevation,data.Time,data.Latitude,data.Longitude,data.Scenario,data.scenarionumber]
         ];
       
       const csvFromArrayOfArrays = convertArrayToCSV(dataArrays, {
-        header,
+        //header,
         separator: ','
       });
-        fs.appendFileSync('vmotorouput.csv', csvFromArrayOfArrays, err =>{
+      
+        fs.appendFileSync("C:/Users/110-15ISK (2212745)/Desktop/masterarbeit/vmotorouput.csv", csvFromArrayOfArrays, err =>{
         if(err){
             console.log(18, err);
         }
@@ -109,14 +135,14 @@ function exportcsv(data){
     function exportcsvservo(data){
         //console.log("X",data);
         dataArrays = [
-            [ data.elevation,new Date().toString(),data.Latitude,data.Longitude,data.Scenario]
+            [ data.elevation,data.Time,data.Latitude,data.Longitude,data.Scenario,data.scenarionumber]
             ];
           
           const csvFromArrayOfArrays = convertArrayToCSV(dataArrays, {
-            header,
+            //header,
             separator: ','
           });
-            fs.appendFileSync('servomotorouput.csv', csvFromArrayOfArrays, err =>{
+            fs.appendFileSync('C:/Users/110-15ISK (2212745)/Desktop/masterarbeit/servomotorouput.csv', csvFromArrayOfArrays, err =>{
             if(err){
                 console.log(18, err);
             }

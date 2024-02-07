@@ -5,7 +5,7 @@ if(!window.sessionStorage.getItem('clientId')){
 let data = [{
   "land": "de-increase-vertical",
   "elevation": { "min": 52, "max": 1275},
-  "start": { "lat": 53.556130, "long": 9.99818}, "end": { "lat": 47.3982, "long": 11.11831}, "setview": { "lat": 51.55, "long": 9.99 }
+  "start": { "lat": 53.556130, "long": 9.99818}, "end": { "lat": 47.3982, "long": 11.11831}, "setview": { "lat": 50.55, "long": 9.99 }
 }, {
   "land": "mr-increase-horizantal",
   "elevation": { "min": 23, "max": 1204},
@@ -17,7 +17,7 @@ let data = [{
 }, {
   "land": "it-decrease-vertical",
   "elevation": { "min": 54, "max": 1378},
-  "start": { "lat": 46.694667307773116, "long": 11.296084918124196}, "end": { "lat": 42.309815415686664, "long": 11.933452707682221}, "setview": { "lat": 46.694667307773116, "long": 11.296084918124196 }
+  "start": { "lat": 46.694667307773116, "long": 11.296084918124196}, "end": { "lat": 42.309815415686664, "long": 11.933452707682221}, "setview": { "lat": 45.694667307773116, "long": 11.296084918124196 }
 }, {
   "land": "sp-Bump-vertical",
   "elevation": { "min": 350, "max": 1128},
@@ -37,7 +37,7 @@ let data = [{
 }
 ]
   
-data =  [...randomArray(data)/*,...randomArray(data,1),...randomArray(data,2)*/]
+data =  [...randomArray(data),...randomArray(data,1),...randomArray(data,2)]
 console.log(data);
 let initialElevator = 0;
 let counter=0;
@@ -68,7 +68,7 @@ let currentPosition = data[0];
     
       var slidervalue = parseInt(output.innerHTML);
       initialElevator = slidervalue;
-      var slidertovibrationmotor = maprange(slidervalue, currentPosition.elevation.min, currentPosition.elevation.max, 0, 255);
+      var slidertovibrationmotor = maprange(slidervalue, 0, 1150, 0, 255);
       //console.log(slidertovibrationmotor);
       socket.emit('vibrationmotorcalibration', { "status": slidertovibrationmotor.toString() });
     }
@@ -80,17 +80,18 @@ let currentPosition = data[0];
    // changePosition({ lat: parseFloat(latlng.lat.toFixed(1)), long: parseFloat(latlng.lng.toFixed(1)) });
     const api_url = 'http://localhost:5000/v1/test-dataset?locations=' + latlng.lat + ',' + latlng.lng;
     const response = fetch(api_url).then(response => response.json()).then((data) => {
-      document.getElementById('markerelevationvalue').innerHTML = data.results[0].elevation;
+      //document.getElementById('markerelevationvalue').innerHTML = data.results[0].elevation;
 
       if (data.results[0].elevation >= 0) {
-        var vibrationminouput = maprange(parseInt(slider.value), currentPosition.elevation.min, currentPosition.elevation.max, 0, 255);
+        var vibrationminouput = maprange(parseInt(slider.value), 0, 1150, 0, 255);
         var minoutput = parseInt(vibrationminouput);
         var vibrationvalue = maprange(data.results[0].elevation, currentPosition.elevation.min , currentPosition.elevation.max, minoutput, 255);
         vibrationvalue = parseInt(vibrationvalue);
         //console.log(currentPosition.elevation, slider.value ,vibrationvalue);
        //console.log("vibtaion value during dragging",vibrationvalue);
+       var Time=new Date().getHours()+":"+new Date().getMinutes().toString()+":"+new Date().getSeconds().toString()+":"+new Date().getMilliseconds().toString();
 
-        socket.emit('motor_elevation', { "status": vibrationvalue.toString() , "elevation":data.results[0].elevation.toString(), "Latitude":latlng.lat,"Longitude":latlng.lng, "Scenario":currentPosition.land});
+        socket.emit('motor_elevation', { "status": vibrationvalue.toString() , "elevation":data.results[0].elevation.toString(), "Latitude":latlng.lat,"Longitude":latlng.lng, "Scenario":currentPosition.land,"Time":Time, "scenarionumber": counter});
       } else { }
 
     });
@@ -134,28 +135,34 @@ let currentPosition = data[0];
     const markerPos = { lat: parseFloat(lastPos.lat.toFixed(1)), long: parseFloat(lastPos.lng.toFixed(1)) }
     
     let length=map.distance(lastPos,circle2.getLatLng());
-    console.log(length);
+    //console.log(length);
     var isInside = length < circle2.getRadius();
-    const findPosition = data.find((position) => {
-     // console.log(markerPos,  parseFloat(position.end.lat.toFixed(1)), parseFloat(position.end.long.toFixed(1)))
-      return parseFloat(position.end.lat.toFixed(1)) === markerPos.lat && parseFloat(position.end.long.toFixed(1)) === markerPos.long
-    })
+    
 
     
 
     if(isInside){
       counter++;
+      //marker?.dragging?.disable();
+      var vibrationminouput = maprange(parseInt(slider.value), 0, 1150, 0, 255);
+      //console.log("RESET vibtaion value---> ",vibrationminouput);
+      //socket.emit('vibrationmotorreset', { "status": vibrationminouput.toString() });
+      socket.emit('vibrationmotorreset', { "status": vibrationminouput.toString() }); 
+      
       if(counter === data.length){
         console.log('Senarios finished');
-        finichvalue=0;
+        var finichvalue=0;
         socket.emit('motor_elevation', { "status": finichvalue.toString()});
-        return;
+        
       }
+      
+
+     
+
       const nextPos = data[counter];
-      currentPosition = nextPos
-      var vibrationminouput = maprange(parseInt(slider.value), currentPosition.elevation.min, currentPosition.elevation.max, 0, 255);
-      //console.log("RESET vibtaion value---> ",vibrationminouput);
-      socket.emit('vibrationmotorreset', { "status": vibrationminouput.toString() });
+      currentPosition = nextPos;
+     
+     
       var newStartLatLng = new L.LatLng(nextPos.start.lat, nextPos.start.long);
       var newEndLatLng = new L.LatLng(nextPos.end.lat, nextPos.end.long);
       marker.setLatLng(newStartLatLng);
@@ -164,6 +171,12 @@ let currentPosition = data[0];
       circle2.setLatLng(newEndLatLng)
       circle2.setStyle({fillColor: 'blue'});
       map.setView([nextPos.setview.lat, nextPos.setview.long], 6);
+
+      //setTimeout(()=>{
+        //console.info('enable dragging')
+        //marker?.dragging?.enable();
+      //}, 2000)
+      
     
     }
       
@@ -196,18 +209,20 @@ let currentPosition = data[0];
 
    // document.getElementById('map').innerHTML = "<div id='mapoutput' style='width: 100%; height: 100%;'></div>";
    document.getElementById('map').innerHTML = "<div id='mapoutput' style='width: 100%; height: 550px; top: 113px'></div>";
-   var map = L.map('mapoutput',{/*rotate: true,*/dragging: true}/*,{dragging: false}*/).setView([currentPosition.setview.lat, currentPosition.setview.long], 6);
+   var map = L.map('mapoutput',{/*rotate: true,*/dragging: false}/*,{dragging: false}*/).setView([currentPosition.setview.lat, currentPosition.setview.long], 6);
  
  
-   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-   }).addTo(map);
+   L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.{ext}', {
+    attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    ext: 'png'
+  }).addTo(map);
  
    map.addControl(new L.Control.Fullscreen());
    //map.setBearing(currentPosition.degree);
    map.removeControl(map.zoomControl);
    map.scrollWheelZoom.disable();
    map.touchZoom.disable();
+   map.doubleClickZoom.disable();
    
  
    marker.addTo(map);
