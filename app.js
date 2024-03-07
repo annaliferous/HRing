@@ -121,7 +121,7 @@ function exportcsv(data){
         separator: ','
       });
       
-        fs.appendFileSync("C:/Users/110-15ISK (2212745)/Desktop/masterarbeit/vmotorouput.csv", csvFromArrayOfArrays, err =>{
+        fs.appendFileSync("file/vmotorouput.csv", csvFromArrayOfArrays, err =>{
         if(err){
             console.log(18, err);
         }
@@ -142,7 +142,7 @@ function exportcsv(data){
             //header,
             separator: ','
           });
-            fs.appendFileSync('C:/Users/110-15ISK (2212745)/Desktop/masterarbeit/servomotorouput.csv', csvFromArrayOfArrays, err =>{
+            fs.appendFileSync('file/servomotorouput.csv', csvFromArrayOfArrays, err =>{
             if(err){
                 console.log(18, err);
             }
