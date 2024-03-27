@@ -3,11 +3,14 @@ var fs = require('fs');
 const { convertArrayToCSV } = require('convert-array-to-csv');
 const { SerialPort } = require('serialport')
 const { ReadlineParser } = require('@serialport/parser-readline')
-const { Server } = require("socket.io");
 
 var dataArrays = [];
+// ?????
 const header = ['elevationvalue','Time','Latitude','Longitude','Scenario','scenarionumber'];
+
+//there is no index file???
 var index = fs.readFileSync( 'index.html');
+
 const parser = new ReadlineParser({ delimiter: '\r\n' });
 
 var port = new SerialPort(
@@ -15,12 +18,6 @@ var port = new SerialPort(
     );
 
 port.pipe(parser);
-//setTimeout(function(){
-//    port.write("1");
-//    console.log("i send 1 to ardouino");
-//}, 3000);
-
-//port.on('error', function(err) { console.log('Error: ', err.message); })
 
 var app = http.createServer(function(req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
