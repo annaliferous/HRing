@@ -11,93 +11,35 @@ Pwm pwm = Pwm();
 
 const int servoPin = D1;
 const int servoPin2 = D2;
-//int value;
+
 int valueposition;
 
-//const char* ssid     = "iPhone von Bilel";
-//const char* password = "6bfabuw7jetsg";
+void setup()
+{
 
-void setup() {
-    //Serial.begin(115200);
-    //delay(10);
- 
-    // We start by connecting to a WiFi network
- 
-    //Serial.println();
-    //Serial.println();
-    //Serial.print("Connecting to ");
-    //Serial.println(ssid);
- 
-    //WiFi.begin(ssid, password);
- 
-    //while (WiFi.status() != WL_CONNECTED) {
-        //delay(500);
-        //Serial.print(".");
-    //}
- 
-    //Serial.println("");
-    //Serial.println("WiFi connected");
-    //Serial.println("IP address: ");
-    //Serial.println(WiFi.localIP());
-    Serial.begin(9600);
-  
+  Serial.begin(9600);
 }
 
-void loop() {
-  //for (int pos = 0; pos <= 180; pos++) {  // go from 0-180 degrees
-    //pwm.writeServo(servoPin, pos);
-    //pwm.writeServo(servoPin2, pos);        // set the servo position (degrees)
-    //delay(15);
-  //}
-  //for (int pos = 180; pos >= 0; pos--) {  // go from 180-0 degrees
-    //pwm.writeServo(servoPin, pos); 
-    //pwm.writeServo(servoPin2, pos);       // set the servo position (degrees)
-    //delay(15);
-  //}
+void loop()
+{
 
-   // CHeck to see if Serial data is being received
-  if (Serial.available() > 0) {
-    
+  // Check to see if Serial data is being received
+  if (Serial.available() > 0)
+  {
+
     // Create a new string variable to receive Serial data
     String receivedString = "";
-    
+
     // Loop through received data and append to the receivedString variable
-    while (Serial.available() > 0) {
-      receivedString += char(Serial.read ());
-       //value = Serial.parseInt();
+    while (Serial.available() > 0)
+    {
+      receivedString += char(Serial.read());
     }
-    
+
     // Print received Serial data
-    //Serial.println(receivedString);
-    
-    int value=receivedString.toInt();
-     
-    //valueposition=map(value, 0, 1400, 0, 180);
+    int value = receivedString.toInt();
 
-    
-       pwm.writeServo(servoPin,value);
-       pwm.writeServo(servoPin2,value);        
-       //Serial.println("Value is positive");
-   
-    //}
-
-    //if(receivedString == "10")
-       //for (int pos = 0; pos <= 180; pos++) {  // go from 0-180 degrees
-       //pwm.writeServo(servoPin, pos);
-       //pwm.writeServo(servoPin2, pos);        // set the servo position (degrees)
-       //delay(15);
-  //}  
-   // else
-   //   Serial.println("No data recieved");
+    pwm.writeServo(servoPin, value);
+    pwm.writeServo(servoPin2, value);
   }
- 
-  //give input 
-  //Serial.println("enter a Value");
-  //while(Serial.available()==0)
-  //{}
-  //int pos=Serial.parseInt();
-  //pwm.writeServo(servoPin, pos);
-  //pwm.writeServo(servoPin2, pos);
- // while(1);
-
 }
