@@ -3,40 +3,40 @@ if (!window.sessionStorage.getItem('clientId')) {
 }
 
 
-let data = [{
-  "land": "de-increase-vertical",
-  "elevation": { "min": 52, "max": 1275 },
-  "start": { "lat": 53.556130, "long": 9.99818 }, "end": { "lat": 47.3982, "long": 11.11831 }, "setview": { "lat": 50.55, "long": 9.99 }
-}, {
-  "land": "mr-increase-horizantal",
-  "elevation": { "min": 23, "max": 1204 },
-  "start": { "lat": 33.9615862897991, "long": -6.836905278558578 }, "end": { "lat": 33.94335994657882, "long": -2.9687421419304294 }, "setview": { "lat": 33.9615862897991, "long": -6.836905278558578 }
-}, {
-  "land": "it-decrease-horizantal",
-  "elevation": { "min": 177, "max": 2654 },
-  "start": { "lat": 45.8326, "long": 6.8652 }, "end": { "lat": 45.521743896993634, "long": 12.591778856022392 }, "setview": { "lat": 45.8326, "long": 6.8652 }
-}, {
-  "land": "it-decrease-vertical",
-  "elevation": { "min": 54, "max": 1378 },
-  "start": { "lat": 46.694667307773116, "long": 11.296084918124196 }, "end": { "lat": 42.309815415686664, "long": 11.933452707682221 }, "setview": { "lat": 45.694667307773116, "long": 11.296084918124196 }
-}, {
-  "land": "sp-Bump-vertical",
-  "elevation": { "min": 350, "max": 1128 },
-  "start": { "lat": 43.229195113965005, "long": -4.240744829809729 }, "end": { "lat": 37.71859032558816, "long": -3.849034239413561 }, "setview": { "lat": 40.13306116240615, "long": -4.420467430051805 }
-}, {
-  "land": "sp-Bump-horizantal",
-  "elevation": { "min": 392, "max": 1280 },
-  "start": { "lat": 40.16208338164619, "long": -8.394558041077802 }, "end": { "lat": 39.90973623453719, "long": -0.28460237394266846 }, "setview": { "lat": 40.16208338164619, "long": -8.394558041077802 }
-}, {
-  "land": "it-Hole-vertical",
-  "elevation": { "min": 17, "max": 800 },
-  "start": { "lat": 45.89000815866184, "long": 11.271961801188953 }, "end": { "lat": 43.992814500489914, "long": 11.293945312500002 }, "setview": { "lat": 45.78284835197676, "long": 11.294488065553342 }
-}, {
-  "land": "Östereich-Romania-Hole-horizantal",
-  "elevation": { "min": 81, "max": 800 },
-  "start": { "lat": 47.29413372501023, "long": 14.943219045198195 }, "end": { "lat": 47.08508535995386, "long": 24.725881578622932 }, "setview": { "lat": 47.29413372501023, "long": 14.943219045198195 }
-}
-]
+// let data = [{
+//   "land": "de-increase-vertical",
+//   "elevation": { "min": 52, "max": 1275 },
+//   "start": { "lat": 53.556130, "long": 9.99818 }, "end": { "lat": 47.3982, "long": 11.11831 }, "setview": { "lat": 50.55, "long": 9.99 }
+// }, {
+//   "land": "mr-increase-horizantal",
+//   "elevation": { "min": 23, "max": 1204 },
+//   "start": { "lat": 33.9615862897991, "long": -6.836905278558578 }, "end": { "lat": 33.94335994657882, "long": -2.9687421419304294 }, "setview": { "lat": 33.9615862897991, "long": -6.836905278558578 }
+// }, {
+//   "land": "it-decrease-horizantal",
+//   "elevation": { "min": 177, "max": 2654 },
+//   "start": { "lat": 45.8326, "long": 6.8652 }, "end": { "lat": 45.521743896993634, "long": 12.591778856022392 }, "setview": { "lat": 45.8326, "long": 6.8652 }
+// }, {
+//   "land": "it-decrease-vertical",
+//   "elevation": { "min": 54, "max": 1378 },
+//   "start": { "lat": 46.694667307773116, "long": 11.296084918124196 }, "end": { "lat": 42.309815415686664, "long": 11.933452707682221 }, "setview": { "lat": 45.694667307773116, "long": 11.296084918124196 }
+// }, {
+//   "land": "sp-Bump-vertical",
+//   "elevation": { "min": 350, "max": 1128 },
+//   "start": { "lat": 43.229195113965005, "long": -4.240744829809729 }, "end": { "lat": 37.71859032558816, "long": -3.849034239413561 }, "setview": { "lat": 40.13306116240615, "long": -4.420467430051805 }
+// }, {
+//   "land": "sp-Bump-horizantal",
+//   "elevation": { "min": 392, "max": 1280 },
+//   "start": { "lat": 40.16208338164619, "long": -8.394558041077802 }, "end": { "lat": 39.90973623453719, "long": -0.28460237394266846 }, "setview": { "lat": 40.16208338164619, "long": -8.394558041077802 }
+// }, {
+//   "land": "it-Hole-vertical",
+//   "elevation": { "min": 17, "max": 800 },
+//   "start": { "lat": 45.89000815866184, "long": 11.271961801188953 }, "end": { "lat": 43.992814500489914, "long": 11.293945312500002 }, "setview": { "lat": 45.78284835197676, "long": 11.294488065553342 }
+// }, {
+//   "land": "Östereich-Romania-Hole-horizantal",
+//   "elevation": { "min": 81, "max": 800 },
+//   "start": { "lat": 47.29413372501023, "long": 14.943219045198195 }, "end": { "lat": 47.08508535995386, "long": 24.725881578622932 }, "setview": { "lat": 47.29413372501023, "long": 14.943219045198195 }
+// }
+// ]
 
 data = [...randomArray(data), ...randomArray(data, 1), ...randomArray(data, 2)]
 console.log(data);
