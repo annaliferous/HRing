@@ -1,40 +1,21 @@
-#include <pwmWrite.h>
-//#include <WiFi.h>
+#include <WiFi.h>
+#include <WebServer.h>
+#include <WebSocketsServer.h>
 
-Pwm pwm = Pwm();
 
-const int servoPin1 = 1;
-const int servoPin2 = D2;
-const int servoPin3 = D3;
 
-int valueposition;
+const char* ssid = "eduroam";
+const char* password = "W3fD4mIwtbI4Tp";
 
-void setup()
-{
+void setup() {
+  // Start Serial
+  Serial.begin(115200);
 
-  Serial.begin(9600);
-}
-
-void loop()
-{
-
-  // Check to see if Serial data is being received
-  if (Serial.available() > 0)
-  {
-
-    // Create a new string variable to receive Serial data
-    String receivedString = "";
-
-    // Loop through received data and append to the receivedString variable
-    while (Serial.available() > 0)
-    {
-      receivedString += char(Serial.read());
-    }
-
-    // Print received Serial data
-    int value = receivedString.toInt();
-
-    pwm.writeServo(servoPin, value);
-    //pwm.writeServo(servoPin2, value);
+  // Connect to Wi-Fi
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.print(".");
   }
-}
+  Serial.println("Connected to Wi-Fi");

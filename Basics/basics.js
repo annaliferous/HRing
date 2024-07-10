@@ -1,3 +1,4 @@
+// Coordinates
 const canvasData = {
   rise: { x1: 150, y1: 150, x2: 150, y2: 50, x3: 50, y3: 150 },
   fall: { x1: 50, y1: 150, x2: 50, y2: 50, x3: 150, y3: 150 },
@@ -5,6 +6,7 @@ const canvasData = {
   tartarus: { x1: 20, y1: 50, x2: 20, y2: 150, x3: 180, y3: 150, x4: 180, y4: 50, x5: 100, y5: 120 }
 };
 
+// Functions that draw the forms
 function rise_and_fall(id, ctx) {
   const data = canvasData[id];
   ctx.clearRect(0, 0, 200, 200);
@@ -63,6 +65,7 @@ function tartarus(id, ctx) {
   ctx.stroke();
 }
 
+// Function that changes y2/y5 coordinate depending on the slider value
 function changeCoordinates(id, dx, dy) {
   const data = canvasData[id];
   if (id === 'tartarus') {
@@ -114,6 +117,27 @@ document.addEventListener("DOMContentLoaded", () => {
       slider.oninput = function() {
           value.innerHTML = this.value;
           changeCoordinates(id, 0, this.value - canvasData[id].y2);
+          changeCoordinates(id, 0, this.value - canvasData[id].y5);
+          console.log(this.value)
+
       }
   });
+  
 });
+
+
+// saves canvas id and changed value to give it to the screen file
+function setValue(id, value) {
+  const pathValue = parseInt(value);
+  localStorage.setItem('pathValue', pathValue);
+  localStorage.setItem('canvasId', id);
+  console.log('Sent value:', pathValue);
+}
+
+// Functions for the set Button, activated after clicking
+function buttonFunctions(id) {
+  const slider = document.getElementById(`${id}Slider`);
+  setValue(id, slider.value);
+  window.open('Screen/screen.html');
+  console.log("Button pressed");
+}
