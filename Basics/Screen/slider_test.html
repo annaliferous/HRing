@@ -12,7 +12,6 @@
         <p>Please move the circle to the end point</p>
     </div>
     <div>
-      <p>Canvas ID: <span id="canvasId"></span></p>
       <p>Value: <span id="pathValue"></span></p>
     </div>
     <div class="slidecontainer">
@@ -25,6 +24,13 @@
     </div>
 
   </div>
-  <script src="screen.js"></script>
+  <script>
+
+    const slider = document.getElementById('myRange');
+    slider.min = slider.max;
+    slider.max = slider.min;
+
+
+  </script>
 </body>
 </html>
