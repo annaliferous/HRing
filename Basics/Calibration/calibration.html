@@ -121,10 +121,16 @@
     var output = document.getElementById("demo");
     output.innerHTML = slider.value;
     // Update Value
-    slider.oninput = function() {
-        output.innerHTML = this.value;
-    }
-    
+    //slider.oninput = function() {
+      //  output.innerHTML = this.value;
+        //console.log('Slider moved, value:', this.value); 
+    //}
+    slider.addEventListener('input', function() {
+        const value = this.value;
+        sendSliderValue(value);  // Call sendSliderValue when slider moves
+        output.innerHTML = value;  // Update the displayed value
+        console.log('Slider value:', value);  // Log for debugging
+    });
    
 
     // connects to the pico
@@ -137,14 +143,21 @@
         writer = textEncoder.writable.getWriter();
 
         console.log('Connected to Pico');
+        //console.log('Writer initialized:', writer);
     }
 
     // sends the Slider values to the Pico
     async function sendSliderValue(value) {
         if (writer) {
-            value = parseInt(value);
-            await writer.write(value.toString() + '\n');
-            console.log('Sent value:', value);
+            try {
+                value = parseInt(value);
+                await writer.write(value.toString() + '\n');
+                console.log('Sent value:', value);
+            }catch (error){
+                console.error('Failed to send value:', error);
+            }
+        }else {
+            console.log('Writer not initialized. Cannot send value.');
         }
     }
 
