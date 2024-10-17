@@ -129,21 +129,27 @@
         const value = this.value;
         sendSliderValue(value);  // Call sendSliderValue when slider moves
         output.innerHTML = value;  // Update the displayed value
-        console.log('Slider value:', value);  // Log for debugging
+        //console.log('Slider value:', value);  // Log for debugging
     });
    
 
     // connects to the pico
     async function connect() {
-        port = await navigator.serial.requestPort();
-        await port.open({ baudRate: 115200 });
+        try {
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 115200 });
 
-        const textEncoder = new TextEncoderStream();
-        const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
-        writer = textEncoder.writable.getWriter();
+            const textEncoder = new TextEncoderStream();
+            const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+            writer = textEncoder.writable.getWriter();
 
-        console.log('Connected to Pico');
-        //console.log('Writer initialized:', writer);
+            console.log('Connected to Pico');
+            //console.log('Writer initialized:', writer);
+
+        } catch (error) {
+        console.error('Failed to connect:', error);
+        }
+        
     }
 
     // sends the Slider values to the Pico

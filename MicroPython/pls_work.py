@@ -14,7 +14,7 @@ def map_value(value, in_min, in_max, out_min, out_max):
     return int((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
 def set_servo_position(servo, position):
-    pulse_width = map_value(position, 0, 180, SERVO_MIN, SERVO_MAX)
+    pulse_width = map_value(position, 0, 360, SERVO_MIN, SERVO_MAX)
     servo.duty_ns(pulse_width * 1000)
 
 # Initialize servo positions
@@ -29,7 +29,7 @@ while True:
         pos1 = int(value_string)
         pos2 = int(value_string)
         
-        if 0 <= pos1 <= 180:
+        if 0 <= pos1 <= 360:
             set_servo_position(servo1, pos1)
             set_servo_position(servo2, pos2)
             print(f"Servo1: {pos1}°, Servo2: {pos2}°")
