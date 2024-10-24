@@ -1,0 +1,5 @@
+canvas_id, min, max, calibration_value, canvas_select
+rise, 0, 50, , 
+fall, 80, 0, , 
+olymp, 0, 120, , 
+tartarus, 40, 0, , 

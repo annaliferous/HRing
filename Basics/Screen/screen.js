@@ -71,13 +71,13 @@ function calculateDegreesRise(value) {
   const slider = document.getElementById('myRange');
   slider.max = 150 - pathValue;
 
-  return value * (360/150);
+  return value * (360/150) + calibrationValue;
 };
 
 // Calculate degrees from slider value for fall
 function calculateDegreesFall(value){
 
-  return ((150 - pathValue) - value) * (360/150);
+  return ((150 - pathValue) - value) * (360/150) + calibrationValue;
 
 }
 
@@ -86,9 +86,9 @@ function calculateDegreesOlymp(value){
   //const slider = document.getElementById('myRange');
   const peakValue = 150 - pathValue;
   if (value <= 50){
-    return ((value / 50) * peakValue) * (360/150)
+    return ((value / 50) * peakValue) * (360/150) + calibrationValue
   } else {
-    return (((100 - value) / 50) * peakValue) * (360/150);
+    return (((100 - value) / 50) * peakValue) * (360/150) + calibrationValue;
   }
 
 }
@@ -101,13 +101,13 @@ function calculateDegreesTartarus(value){
   const peakValue = 150 - pathValue;
 
   if (peakValue === 50) {
-    return 50 * (360/150);
+    return 50 * (360/150) + calibrationValue;
   }
 
   if (value <= 50){
-    return (50 - ((value / 50) * (50 - peakValue))) * (360/150);
+    return (50 - ((value / 50) * (50 - peakValue))) * (360/150) + calibrationValue;
   } else {
-    return (peakValue + (((value - 50) / 50) * (50 - peakValue))) * (360/150);
+    return (peakValue + (((value - 50) / 50) * (50 - peakValue))) * (360/150) + calibrationValue;
   }
 }
 // * (360/150)
@@ -140,6 +140,7 @@ async function sendSliderValue() {
     
     await writer.write(degrees.toString() + '\n');
     console.log('Sent value:', degrees);
+    //console.log('+ Calibration Value:', calibrationValue)
     console.log(canvasId);
   } else {
     console.log('Writer is not available. Connect to Pico first.');

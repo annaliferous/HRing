@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2D Line Visualization</title>
+  <link rel="stylesheet" type="text/css" href="selection.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="outline">
+            <div class="grid-container">
+              <div id="rise" class="canvas-container">
+                <canvas class="canvas" id="riseCanvas" width="200" height="200"></canvas>
+                <button class="button" onclick="buttonFunctions('rise')">Select</button>
+              </div>
+              <div id="fall" class="canvas-container">
+                <canvas class="canvas" id="fallCanvas" width="200" height="200"></canvas>
+                <button class="button" onclick="buttonFunctions('fall')">Select</button>
+              </div>
+              <div id="olymp" class="canvas-container">
+                <canvas class="canvas" id="olympCanvas" width="200" height="200"></canvas>
+                <button class="button" onclick="buttonFunctions('olymp')">Select</button>
+              </div>
+              <div id="tartarus" class="canvas-container">
+                <canvas class="canvas" id="tartarusCanvas" width="200" height="200"></canvas>
+                <button class="button" onclick="buttonFunctions('tartarus')">Select</button>
+              </div>
+            </div>
+          </div>
+    </div>
+  <script src="selection.js"></script>
+  
+</body>
+</html>
