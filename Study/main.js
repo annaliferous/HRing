@@ -143,8 +143,9 @@ const calibrationValue = localStorage.getItem('calibrationValue')
 function calculateDegreesRise(value) {  
 
     const slider = document.getElementById('screen_slider'); 
-    slider.max = 100  + calibrationValue;
-    slider.min = calibrationValue
+    const calibrationValueN = parseInt(calibrationValue);
+    slider.max = 100  + calibrationValueN;
+    slider.min = calibrationValueN;
   
     return value;
   };
@@ -165,7 +166,7 @@ function calculateDegreesRise(value) {
   function calculateDegreesOlymp(value){
 
     const slider = document.getElementById('screen_slider');
-    const calibrationValueN = parseInt(calibrationValue, 10)
+    const calibrationValueN = parseInt(calibrationValue)
     slider.min = calibrationValueN
     slider.max = 140  + calibrationValueN
     const peakValue = 140  + calibrationValueN;
@@ -207,7 +208,7 @@ function calculateDegreesRise(value) {
 async function resetServos() {
   if (writer) {
       try {
-          let resetValue = parseInt(calibrationValue, 10);
+          let resetValue = parseInt(calibrationValue);
           await writer.write(resetValue.toString() + '\n');  // Reset both servos to 0
           console.log('Reset servos to calibrationValue:', resetValue);
       } catch (error) {
@@ -222,6 +223,7 @@ async function resetServos() {
     // Get the slider element and its current value
     const slider = document.getElementById('screen_slider');
     const max = parseInt(slider.max);  // Get the maximum value of the slider
+    //touchup
 
     // Check if the current value of the slider equals the maximum
     if (parseInt(slider.value) === max) {
@@ -238,9 +240,8 @@ async function resetServos() {
   
   // Sends the translated slider value to the Pico
   async function screen_sendSliderValue() {
-    //resetServos();
     if (writer) {
-      
+      resetServos();
       const slider = document.getElementById('screen_slider');
       let degrees;
       degrees = calculateDegreesRise(parseInt(slider.value));

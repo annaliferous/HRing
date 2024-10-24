@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2D Line Visualization</title>
+  <link rel="stylesheet" type="text/css" href="measurements.css" />
+</head>
+<body>
+  <div class="container" id="canvases">
+    <div class="outline">
+        <div class="grid-container">
+          <div id="rise" class="canvas-container">
+            <canvas class="canvas" id="riseCanvas" width="200" height="200"></canvas>
+            <button class="button" onclick="buttonFunctions('rise')">Select</button>
+          </div>
+          <div id="fall" class="canvas-container">
+            <canvas class="canvas" id="fallCanvas" width="200" height="200"></canvas>
+            <button class="button" onclick="buttonFunctions('fall')">Select</button>
+          </div>
+          <div id="olymp" class="canvas-container">
+            <canvas class="canvas" id="olympCanvas" width="200" height="200"></canvas>
+            <button class="button" onclick="buttonFunctions('olymp')">Select</button>
+          </div>
+          <div id="tartarus" class="canvas-container">
+            <canvas class="canvas" id="tartarusCanvas" width="200" height="200"></canvas>
+            <button class="button" onclick="buttonFunctions('tartarus')">Select</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container" id="q1">
+      <div class="outline">
+        <p>Question about intensity</p>
+        <div class="slidecontainer">
+          <input type="range" min="0" max="100" value="0" class="slider" id="q1Range" step="1"/>
+          <button class="button">Enter</button>
+        </div>
+      </div>
+    </div>
+    <div class="container" id="q2">
+      <div class="outline">
+        <p>Question about height</p>
+        <div class="slidecontainer">
+          <input type="range" min="0" max="100" value="0" class="slider" id="myRange"/>
+          <button class="button">Enter</button>
+        </div>
+      </div>
+    </div>
+  <script src="measurements.js"></script>
+  
+</body>
+</html>
