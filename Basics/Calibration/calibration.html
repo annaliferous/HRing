@@ -67,7 +67,7 @@
                 <p>Please click "Send" when you start to feel any pressure</p>
             </div>
             <div class="slidecontainer">
-                <input type="range" min="0" max="360" value="0" class="slider" id="myRange"
+                <input type="range" min="0" max="220" value="0" class="slider" id="myRange"
                     oninput="sendSliderValue(this.value)" />
                 <p>Value: <span id="demo"></span></p>
                 <button onclick="connect()">Connect to Pico</button>
@@ -129,21 +129,27 @@
         const value = this.value;
         sendSliderValue(value);  // Call sendSliderValue when slider moves
         output.innerHTML = value;  // Update the displayed value
-        console.log('Slider value:', value);  // Log for debugging
+        //console.log('Slider value:', value);  // Log for debugging
     });
    
 
     // connects to the pico
     async function connect() {
-        port = await navigator.serial.requestPort();
-        await port.open({ baudRate: 115200 });
+        try {
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 115200 });
 
-        const textEncoder = new TextEncoderStream();
-        const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
-        writer = textEncoder.writable.getWriter();
+            const textEncoder = new TextEncoderStream();
+            const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+            writer = textEncoder.writable.getWriter();
 
-        console.log('Connected to Pico');
-        //console.log('Writer initialized:', writer);
+            console.log('Connected to Pico');
+            //console.log('Writer initialized:', writer);
+
+        } catch (error) {
+        console.error('Failed to connect:', error);
+        }
+        
     }
 
     // sends the Slider values to the Pico
@@ -164,7 +170,7 @@
     // Saves the current Slider value in localStorage
     function set(value){
         const calibrationValue = parseInt(value);
-        localStorage.setItem('currentValue', calibrationValue);
+        localStorage.setItem('calibrationValue', calibrationValue);
     }
 
 
