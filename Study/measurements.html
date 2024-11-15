@@ -7,8 +7,12 @@
   <link rel="stylesheet" type="text/css" href="measurements.css" />
 </head>
 <body>
+  <div class="container">
+    <h1>Questionnaire</h1>
+  </div>
   <div class="container" id="canvases">
     <div class="outline">
+        <p>Please select a canvas</p>
         <div class="grid-container">
           <div id="rise" class="canvas-container">
             <canvas class="canvas" id="riseCanvas" width="200" height="200"></canvas>
@@ -33,7 +37,8 @@
       <div class="outline">
         <p>Question about intensity</p>
         <div class="slidecontainer">
-          <input type="range" min="0" max="100" value="0" class="slider" id="q1Range" step="1"/>
+          <input type="range" min="0" max="100" value="0" class="slider" id="q1Range" />
+          <p>Value: <span id="q1output"></span></p>
           <button class="button">Enter</button>
         </div>
       </div>
@@ -42,12 +47,12 @@
       <div class="outline">
         <p>Question about height</p>
         <div class="slidecontainer">
-          <input type="range" min="0" max="100" value="0" class="slider" id="myRange"/>
+          <input type="range" min="0" max="100" value="0" class="slider" id="q2Range"/>
+          <p>Value: <span id="q2output"></span></p>
           <button class="button">Enter</button>
         </div>
       </div>
     </div>
   <script src="measurements.js"></script>
-  
 </body>
 </html>

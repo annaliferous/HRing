@@ -85,4 +85,20 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+//Question 1
+var q1slider = document.getElementById("q1Range");
+var q1output = document.getElementById("q1output");
+q1output.innerHTML = q1slider.value;
+// Update the current slider value (each time you drag the slider handle)
+q1slider.oninput = function() {
+  q1output.innerHTML = this.value;
+}
 
+//Question 2
+var q2slider = document.getElementById("q2Range");
+var q2output = document.getElementById("q2output");
+q2output.innerHTML = q2slider.value;
+// Update the current slider value (each time you drag the slider handle)
+q2slider.oninput = function() {
+  q2output.innerHTML = this.value;
+}

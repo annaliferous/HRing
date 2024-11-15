@@ -33,14 +33,33 @@ if (e.touches) {
 };
 // Time how long dragging the slider takes
 let startTime = 0;
-let endTime = 0;
 screen_slider.addEventListener('mousedown', () => {
-  if (slider.value == slider.min) {
+  if (screen_slider.value == screen_slider.min) {
       isDragging = true;
       startTime = Date.now(); // Record the start time
   }
 });
+// Detect when the slider is dragged (input event)
+screen_slider.addEventListener('input', () => {
+    if (isDragging) {
+        let currentTime = Date.now();
+        let timeElapsed = (currentTime - startTime); // Time in seconds
+        result.textContent = `Time: ${timeElapsed.toFixed(2)} seconds`;
+    }   
+});
+screen_slider.addEventListener('mouseup', () => {
+    if (screen_slider.value == screen_slider.max) {
+        setTimeout(function(){
+            isDragging = false;
+            screen_slider.min = 0;
+            screen_slider.value = screen_slider.min;
+            startTime = 0;
 
+        }, 5000)
+    }
+    
+
+});
 // Calibration
 const sliders = [calibration_slider, screen_slider];
 sliders.forEach(slider => {
@@ -233,8 +252,8 @@ async function resetServos() {
     if (parseInt(slider.value) === max) {
         // Redirect to a new HTML page when the slider reaches the end
         setTimeout(function(){
-          document.getElementById("screen").style.display = "none";
-          document.getElementById("selection").style.display = "block";
+          //document.getElementById("screen").style.display = "none";
+          //document.getElementById("selection").style.display = "block";
         }, 2000)
         
     }
