@@ -1,1 +1,5 @@
-canvas_id, min, max, calibration_value, canvas_select, participant_id, trial_id, timestamp
+condition_id, participation_id, calibration_value, canvas_select, intensity, step_id, min, max, time_start, time_stop
+rise,,,,,,,70,,,
+fall,,,,,,,20,,,
+olymp,,,,,,,120,,,
+tartarus,,,,,,,80,,,

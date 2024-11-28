@@ -12,6 +12,8 @@
     <div class="calibration" id="calibration">
         <div class="container">
             <div class="outline">
+                <label for="participation_id">Participation ID: </label>
+                <input type="text" id="participation_id" name="participation_id" maxlength="4" size="4"><br><br>
                 <div class="headline">
                     <p>Please click "Send" when you start to feel any pressure</p>
                 </div>
@@ -19,6 +21,7 @@
                     <input type="range" min="0" max="180" value="0" class="slider" id="calibration_slider"
                         oninput="calibration_sendSliderValue(this.value)" />
                     <p>Value: <span id="demo"></span></p>
+                    
                     <button onclick="connect()">Connect to Pico</button>
                     <button class="button" onclick="sendButtonFunction()">Send</button>
                 </div>
@@ -34,14 +37,19 @@
                 <div class="slidecontainer">
                     <input type="range" min="0" max="100" value="0" class="slider" id="screen_slider"
                         oninput="screen_sendSliderValue(this.value)">
-                    <p id="result">Time: 0 seconds</p>
                 </div>
+            </div>
+            <div class="outline" id="message">
             </div>
         </div>
     </div>
-    <div class="selection" id="selection">
+    <div class="" id="selection">
         <div class="container">
+            <h1>Questionnaire</h1>
+          </div>
+          <div class="container" id="canvases">
             <div class="outline">
+                <p>Please select a canvas</p>
                 <div class="grid-container">
                   <div id="rise" class="canvas-container">
                     <canvas class="canvas" id="riseCanvas" width="200" height="200"></canvas>
@@ -61,7 +69,27 @@
                   </div>
                 </div>
               </div>
-        </div>
+            </div>
+            <div class="container" id="q1">
+              <div class="outline">
+                <p>Question about intensity</p>
+                <div class="slidecontainer">
+                  <input type="range" min="0" max="100" value="0" class="slider" id="q1Range" />
+                  <p>Value: <span id="q1output"></span></p>
+                  <button class="button">Enter</button>
+                </div>
+              </div>
+            </div>
+            <div class="container" id="q2">
+              <div class="outline">
+                <p>Question about height</p>
+                <div class="slidecontainer">
+                  <input type="range" min="0" max="100" value="0" class="slider" id="q2Range"/>
+                  <p>Value: <span id="q2output"></span></p>
+                  <button class="button" onclick="sendQuestionnaire()">Enter</button>
+                </div>
+              </div>
+            </div>
     </div>
     <script src="test_run.js"></script>
 </body>

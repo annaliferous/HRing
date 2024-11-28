@@ -5,6 +5,7 @@ document.getElementById("selection").style.display = "none";
 const calibration_slider = document.getElementById('calibration_slider');
 const screen_slider = document.getElementById('screen_slider');
 
+
 let isDragging = false;
 
 const startDrag = (e) => {
@@ -32,30 +33,90 @@ if (e.touches) {
 // Update slider position logic here using clientX
 };
 // Time how long dragging the slider takes
-let startTime = 0;
+let startTime;
+let stopTime;
+let lastTimestamp = null;
+let minInterval = 350;  // Minimum time (ms) between movements to avoid "too quick" warning
+let maxInterval = 400; 
+
 screen_slider.addEventListener('mousedown', () => {
   if (screen_slider.value == screen_slider.min) {
       isDragging = true;
       startTime = Date.now(); // Record the start time
+      console.log(startTime)
+      fetch('http://localhost:3000/sendTimeStart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            time_start: startTime
+        }),
+        })
+        .then(response => response.text())
+        .then(text => {console.log('Success:');})
+        .catch(error => console.error('Error:', error));
   }
 });
 // Detect when the slider is dragged (input event)
 screen_slider.addEventListener('input', () => {
     if (isDragging) {
-        let currentTime = Date.now();
-        let timeElapsed = (currentTime - startTime); // Time in seconds
-        result.textContent = `Time: ${timeElapsed.toFixed(2)} seconds`;
+        let currentTimestamp = Date.now();
+        if (lastTimestamp !== null) {
+          const timeDifference = currentTimestamp - lastTimestamp;
+
+          // Check if the movement was too quick
+          if (timeDifference > minInterval) {
+              message.textContent = "You're moving the slider too quickly!";
+              message.style.color = 'orange';
+          }
+          // Check if the movement was too slow
+          else if (timeDifference > maxInterval) {
+              message.textContent = "You're moving the slider too quickly!";
+              message.style.color = 'red';
+          } else {
+              message.textContent = "";
+          }
+      }
+
+      // Update the lastTimestamp to the current time
+      lastTimestamp = currentTimestamp;
+        
     }   
 });
 screen_slider.addEventListener('mouseup', () => {
+  // add counter when reached 4, then, the actual trial will start
     if (screen_slider.value == screen_slider.max) {
+      stopTime = Date.now(); 
+      console.log(stopTime);
         setTimeout(function(){
             isDragging = false;
             screen_slider.min = 0;
             screen_slider.value = screen_slider.min;
-            startTime = 0;
+            
+            document.getElementById("screen").style.display = "none";
+            document.getElementById("selection").style.display = "block";
 
-        }, 5000)
+        }, 3000)
+        fetch('http://localhost:3000/sendTimeStop', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+              time_stop: stopTime
+          }),
+          })
+          .then(response => response.text())
+          .then(text => {console.log('Success:');})
+          .catch(error => console.error('Error:', error));
+    }else{
+      setTimeout(function(){
+        message.textContent = "Please begin again";
+        isDragging = false;
+        screen_slider.min = 0;
+        screen_slider.value = screen_slider.min;
+    }, 1000)
     }
     
 
@@ -126,35 +187,52 @@ function setSliderValue(value){
 }
 
 
-
+const participation_id = document.getElementById('participation_id');
 
 // Functions activated after clicking the Button "Send"
 function sendButtonFunction(){
 
   const calibrationValue = calibration_slider.value;
+  const participationId = participation_id.value;
+
+
+  const body = new URLSearchParams({
+    calibrationValue: calibrationValue,
+    participationId: participationId,
+  })
+  
+  console.log('Body:', body.toString());
+
+  fetch('http://localhost:3000/sendCal', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        //'Content-Type': 'text/plain'
+    },
+    body: body,
+  })
+  .then(response => {
+    console.log(response.status)
+    return response.text();
+  })
+  .then(text => {
+      console.log('Response:', text); // from server
+      
+  })
+  .catch(error => console.error('Error:', error));
 
   setSliderValue(calibrationValue);
   console.log(calibrationValue);
   document.getElementById("calibration").style.display = "none";
   document.getElementById("screen").style.display = "block";
+
+  
 }
 
 
 // Screen
 
-//Data File as Array
-const data_file = [
-  ['canvas_id', 'min', 'max'],
-  ['rise', '0', '50'],
-  ['fall', '80', '0'],
-  ['olymp', '0', '120'],
-  ['tartarus', '40', '0']
-  ['tartarus', '90', '0']
-];
 
-function test(data_file){
-  // go through data file array and call fitting array
-}
 // Retrieve the values from localStorage
 const canvasId = localStorage.getItem('canvasId');
 const pathValue = localStorage.getItem('pathValue');
@@ -307,88 +385,117 @@ const canvasData = {
 
 // Functions that draw the forms
 function rise_and_fall(id, ctx) {
-  const data = canvasData[id];
-  ctx.clearRect(0, 0, 200, 200);
-  ctx.beginPath();
-  ctx.moveTo(data.x1, data.y1);
-  ctx.lineTo(data.x2, data.y2);
-  ctx.lineTo(data.x3, data.y3);
-  ctx.closePath();
-  ctx.stroke();
+const data = canvasData[id];
+ctx.clearRect(0, 0, 200, 200);
+ctx.beginPath();
+ctx.moveTo(data.x1, data.y1);
+ctx.lineTo(data.x2, data.y2);
+ctx.lineTo(data.x3, data.y3);
+ctx.closePath();
+ctx.stroke();
 
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(data.x2, data.y2);
-  ctx.lineTo(data.x3, data.y3);
-  ctx.strokeStyle = 'white';
-  ctx.stroke();
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(data.x2, data.y2);
+ctx.lineTo(data.x3, data.y3);
+ctx.strokeStyle = 'white';
+ctx.stroke();
 }
 
 function olymp(id, ctx) {
-  const data = canvasData[id];
-  ctx.clearRect(0, 0, 200, 200);
-  ctx.beginPath();
-  ctx.moveTo(data.x1, data.y1);
-  ctx.lineTo(data.x2, data.y2);
-  ctx.lineTo(data.x3, data.y3);
-  ctx.closePath();
-  ctx.stroke();
+const data = canvasData[id];
+ctx.clearRect(0, 0, 200, 200);
+ctx.beginPath();
+ctx.moveTo(data.x1, data.y1);
+ctx.lineTo(data.x2, data.y2);
+ctx.lineTo(data.x3, data.y3);
+ctx.closePath();
+ctx.stroke();
 
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(data.x1, data.y1);
-  ctx.lineTo(data.x2, data.y2);
-  ctx.lineTo(data.x3, data.y3);
-  ctx.strokeStyle = 'white';
-  ctx.stroke();
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(data.x1, data.y1);
+ctx.lineTo(data.x2, data.y2);
+ctx.lineTo(data.x3, data.y3);
+ctx.strokeStyle = 'white';
+ctx.stroke();
 }
 
 function tartarus(id, ctx) {
-  const data = canvasData[id];
-  ctx.clearRect(0, 0, 200, 200);
-  ctx.beginPath();
-  ctx.moveTo(data.x1, data.y1);
-  ctx.lineTo(data.x2, data.y2);
-  ctx.lineTo(data.x3, data.y3);
-  ctx.lineTo(data.x4, data.y4);
-  ctx.lineTo(data.x5, data.y5);
-  ctx.closePath();
-  ctx.stroke();
+const data = canvasData[id];
+ctx.clearRect(0, 0, 200, 200);
+ctx.beginPath();
+ctx.moveTo(data.x1, data.y1);
+ctx.lineTo(data.x2, data.y2);
+ctx.lineTo(data.x3, data.y3);
+ctx.lineTo(data.x4, data.y4);
+ctx.lineTo(data.x5, data.y5);
+ctx.closePath();
+ctx.stroke();
 
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(data.x1, data.y1);
-  ctx.lineTo(data.x5, data.y5);
-  ctx.lineTo(data.x4, data.y4);
-  ctx.strokeStyle = 'white';
-  ctx.stroke();
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(data.x1, data.y1);
+ctx.lineTo(data.x5, data.y5);
+ctx.lineTo(data.x4, data.y4);
+ctx.strokeStyle = 'white';
+ctx.stroke();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  Object.keys(canvasData).forEach(id => {
-      const canvas = document.getElementById(`${id}Canvas`);
-      const ctx = canvas.getContext("2d");
-      switch (id) {
-          case 'olymp':
-              olymp(id, ctx);
-              break;
-          case 'tartarus':
-              tartarus(id, ctx);
-              break;
-          default:
-              rise_and_fall(id, ctx);
-      }
+Object.keys(canvasData).forEach(id => {
+    const canvas = document.getElementById(`${id}Canvas`);
+    const ctx = canvas.getContext("2d");
+    switch (id) {
+        case 'olymp':
+            olymp(id, ctx);
+            break;
+        case 'tartarus':
+            tartarus(id, ctx);
+            break;
+        default:
+            rise_and_fall(id, ctx);
+    }
 
-  });
-  
 });
 
+});
+
+let selectedCanvas = ""; // Variable to track the selected canvas
+
+function buttonFunctions(canvasId) {
+    // Update the selected canvas ID
+    selectedCanvas = canvasId;
+    console.log(`Canvas ${canvasId} selected`);
+}
+
+
+//Question 1
+var q1slider = document.getElementById("q1Range");
+var q1output = document.getElementById("q1output");
+q1output.innerHTML = q1slider.value;
+// Update the current slider value (each time you drag the slider handle)
+q1slider.oninput = function() {
+q1output.innerHTML = this.value;
+}
+
+//Question 2
+var q2slider = document.getElementById("q2Range");
+var q2output = document.getElementById("q2output");
+q2output.innerHTML = q2slider.value;
+// Update the current slider value (each time you drag the slider handle)
+q2slider.oninput = function() {
+q2output.innerHTML = this.value;
+}
 
 
 
 // Functions for the set Button, activated after clicking
-function buttonFunctions(id) {
-  //setValue(id, slider.value);
+function sendQuestionnaire() {
+  var q2slider = document.getElementById("q2Range");
+  var q2output = document.getElementById("q2output");
+  q2output.innerHTML = q2slider.value;
+
   console.log("Button pressed");
   document.getElementById("screen").style.display = "block";
   document.getElementById("selection").style.display = "none";

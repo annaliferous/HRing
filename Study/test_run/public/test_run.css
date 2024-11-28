@@ -2,59 +2,32 @@
     display: flex;
     justify-content: center;  /* Centers horizontally */
     align-items: center;      /* Centers vertically */
-    /* height: 100vh; */            /* Full viewport height */
     padding-bottom: 20px;
+    height: 100vh;            /* Full viewport height */
 }
+
 .outline {
-    /* position: fixed; */
+    /* position: absolute; */
     border-radius: 25px;
     border: 2px solid #9adde8;
     padding: 20px; 
-    width: 90%;
-    height: 40%; 
+    width: 95%;
+    position: absolute;
+    /* height: 50%;  */
+    /* top: 50%; */
 }
 
+#message {
+    position:absolute;
+    bottom:0;
+    right:0;
+    width: 200px;
+    height: 120px;
+}
 .headline {
     text-align: center;
 }
 
-
-.canvas-container {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.canvas {
-    border: 1px none;
-    border-radius: 5px;
-    background-color: #9adde8;
-}
-
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
-}
-
-.grid-container div {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.3s ease;
-  padding: 10px;
-}
-
-.grid-container div:hover {
-  transform: scale(1.05);
-}
-
-.button {
-    margin-top: 10px;
-}
-
-
-/*Slider*/
 
 .slider {
     appearance: none;
@@ -86,3 +59,38 @@
     cursor: pointer;
 }
 
+.button {
+    margin-top: 10px;
+}
+
+/* Selection */
+
+.canvas-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.canvas {
+    border: 1px none;
+    border-radius: 5px;
+    background-color: #9adde8;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.grid-container div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  padding: 10px;
+}
+
+.grid-container div:hover {
+  transform: scale(1.05);
+}
