@@ -1,2 +1,0 @@
-Objectname, SERVO_MIN_PULSEWIDTH, SERVO_MAX_PULSEWIDTH, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE, start_point, end_point
-Square, 500, 2500, 0, 90, 0, 0

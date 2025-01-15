@@ -1,11 +1,12 @@
+//Only show Calibration slider in the beginning
 document.getElementById("screen").style.display = "none";
 document.getElementById("selection").style.display = "none";
 
-//Touch screen lag when dragging slider
+//Define Sliders
 const calibration_slider = document.getElementById('calibration_slider');
 const screen_slider = document.getElementById('screen_slider');
 
-
+//Fixing TouchScreen lag when dragging slider
 let isDragging = false;
 
 const startDrag = (e) => {
@@ -44,18 +45,6 @@ screen_slider.addEventListener('mousedown', () => {
       isDragging = true;
       startTime = Date.now(); // Record the start time
       console.log(startTime)
-      fetch('http://localhost:3000/sendTimeStart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-            time_start: startTime
-        }),
-        })
-        .then(response => response.text())
-        .then(text => {console.log('Success:');})
-        .catch(error => console.error('Error:', error));
   }
 });
 // Detect when the slider is dragged (input event)
@@ -98,18 +87,6 @@ screen_slider.addEventListener('mouseup', () => {
             document.getElementById("selection").style.display = "block";
 
         }, 3000)
-        fetch('http://localhost:3000/sendTimeStop', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams({
-              time_stop: stopTime
-          }),
-          })
-          .then(response => response.text())
-          .then(text => {console.log('Success:');})
-          .catch(error => console.error('Error:', error));
     }else{
       setTimeout(function(){
         message.textContent = "Please begin again";
@@ -133,8 +110,6 @@ document.addEventListener('mouseup', endDrag);
 document.addEventListener('touchmove', drag);
 document.addEventListener('touchend', endDrag);
   
-let port;
-let writer;
 
 //show current value
 var output = document.getElementById("demo");
@@ -147,37 +122,14 @@ calibration_slider.addEventListener('input', function() {
 });
    
 
-// connects to the pico
-async function connect() {
-    try {
-        port = await navigator.serial.requestPort();
-        await port.open({ baudRate: 115200 });
-
-        const textEncoder = new TextEncoderStream();
-        const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
-        writer = textEncoder.writable.getWriter();
-
-        console.log('Connected to Pico');
-
-    } catch (error) {
-      console.error('Failed to connect:', error);
-    }
-    
-}
+// connect to WebSocket
+const ws = new WebSocket('ws://localhost:3000');
 
 // sends the Slider values to the Pico
-async function calibration_sendSliderValue(value) {
-    if (writer) {
-        try {
-            value = parseInt(value);
-            await writer.write(value.toString() + '\n');
-            console.log('Sent value:', value);
-        }catch (error){
-            console.error('Failed to send value:', error);
-        }
-    }else {
-        console.log('Writer not initialized. Cannot send value.');
-    }
+function calibration_sendSliderValue(value) {
+  value = parseInt(value);
+  ws.send(value);
+  console.log('Sent value:', value);
 }
 
 // Saves the current Slider value in localStorage
