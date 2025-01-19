@@ -1,0 +1,126 @@
+.container {
+    display: flex;
+    justify-content: center;  /* Centers horizontally */
+    align-items: center;      /* Centers vertically */
+    padding-bottom: 1px;
+    height: 50vh;            /* Full viewport height */
+}
+
+#header{
+    height: 10vh;            
+}
+
+#q1{
+    height: 30vh;            
+}
+#q2{
+    height: 20vh;            
+}
+.outline {
+    /* position: absolute; */
+    border-radius: 25px;
+    border: 2px solid #9adde8;
+    padding: 20px; 
+    width: 95%;
+    position: absolute;
+    /* height: 50%;  */
+    /* top: 50%; */
+}
+
+#message {
+    position:absolute;
+    bottom:0;
+    right:0;
+    width: 200px;
+    height: 120px;
+}
+.headline {
+    text-align: center;
+}
+
+.slidercontainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.sliderwrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* aligns the items next to each other */
+    width: 100%;
+}
+
+.min,
+.max {
+  width: 0 0 30px; /* position of max*/
+  text-align: center;
+}
+
+.slider {
+    flex-grow: 1; /* fills out the rest of the space */
+    margin: 0 20px;
+    appearance: none; /* for styling */
+    height: 15px;
+    border-radius: 5px;  
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%; 
+    background: #9adde8;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #9adde8;
+    cursor: pointer;
+}
+
+.button {
+    margin-top: 10px;
+}
+
+/* Selection */
+
+.canvas-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.canvas {
+    border: 1px none;
+    border-radius: 5px;
+    background-color: #9adde8;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+}
+
+.grid-container div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  padding: 10px;
+}
+
+.grid-container div:hover {
+  transform: scale(1.05);
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="slopes.css">
+  </link>
+</head>
+
+<body>
+
+  <div class="" id="selection">
+    <div class="container" id="header">
+      <h1>Questionnaire</h1>
+    </div>
+    <div class="container" id="canvases">
+      <div class="outline">
+        <p>Please select a canvas</p>
+        <div class="grid-container">
+          <div id="rise" class="canvas-container">
+            <canvas class="canvas" id="riseCanvas" width="200" height="200"></canvas>
+            <button class="button" onclick="buttonFunctions('rise')">Select</button>
+          </div>
+          <div id="fall" class="canvas-container">
+            <canvas class="canvas" id="fallCanvas" width="200" height="200"></canvas>
+            <button class="button" onclick="buttonFunctions('fall')">Select</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container" id="q1">
+      <div class="outline">
+        <p>Question about intensity</p>
+        <div class="slidecontainer">
+        <div class="sliderwrapper">
+            <span class="min">0</span>
+            <input type="range" min="0" max="100" value="0" class="slider" id="q1Range" />
+            <span class="max">100</span>
+          </div>
+          <button class="button">Enter</button>
+        </div>
+      </div>
+    </div>
+    <div class="container" id="q2">
+      <div class="outline">
+        <p>Question about height</p>
+        <div class="slidecontainer">
+          <div class="sliderwrapper">
+            <span class="min">0</span>
+            <input type="range" min="0" max="100" value="0" class="slider" id="q2Range" />
+            <span class="max">100</span>
+          </div>
+          <button class="button" onclick="sendQuestionnaire()">Enter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="slopes.js"></script>
+</body>
+<script>
