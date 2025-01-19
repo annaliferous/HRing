@@ -3,7 +3,7 @@ const Websocket = require('ws')
 
 //Connection to Pico
 const { SerialPort } = require('serialport');
-//const { Readline } = require('@serialport/parser-readline')
+const { ReadlineParser } = require('@serialport/parser-readline')
 
 
 const http = require('http');
@@ -19,18 +19,25 @@ const port = new SerialPort({
     path: '/dev/ttyUSB0',
     baudRate: 115200,
 });
-//const parser = port.pipe(new Readline({ delimiter: '\n' }))
+const parser = new ReadlineParser({ delimiter: '\r\n' })
+
+
 
 
 //connect to Pico
-ws.on('connection', value => {
-    console.log('Value Send to Pico:', value);
-    //Forward slider values to Pico
-    port.write(value + '\n', err => {
-        if(err) {
-            console.log('Error with Pico:', err.message)
-        }
-    });
+ws.on('connection', ws => {
+    console.log("Client connected to server")
+    ws.on('message', value => {
+        console.log('Value Send to Pico:', value);
+
+        //Forward slider values to Pico
+        port.write(value + '\n', err => {
+            if(err) {
+                console.log('Error with Pico:', err.message)
+            }
+        });
+    })
+    
 });
 
 

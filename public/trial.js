@@ -123,7 +123,7 @@ calibration_slider.addEventListener('input', function() {
    
 
 // connect to WebSocket
-const ws = new WebSocket('ws://localhost:3000');
+const ws = new WebSocket('ws://localhost:8080');
 
 // sends the Slider values to the Pico
 function calibration_sendSliderValue(value) {
@@ -146,32 +146,6 @@ function sendButtonFunction(){
 
   const calibrationValue = calibration_slider.value;
   const participationId = participation_id.value;
-
-
-  const body = new URLSearchParams({
-    calibrationValue: calibrationValue,
-    participationId: participationId,
-  })
-  
-  console.log('Body:', body.toString());
-
-  fetch('http://localhost:3000/sendCal', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        //'Content-Type': 'text/plain'
-    },
-    body: body,
-  })
-  .then(response => {
-    console.log(response.status)
-    return response.text();
-  })
-  .then(text => {
-      console.log('Response:', text); // from server
-      
-  })
-  .catch(error => console.error('Error:', error));
 
   setSliderValue(calibrationValue);
   console.log(calibrationValue);
@@ -420,6 +394,7 @@ function buttonFunctions(canvasId) {
     selectedCanvas = canvasId;
     console.log(`Canvas ${canvasId} selected`);
 }
+
 
 
 //Question 1
