@@ -2,10 +2,20 @@
     display: flex;
     justify-content: center;  /* Centers horizontally */
     align-items: center;      /* Centers vertically */
-    padding-bottom: 20px;
-    height: 100vh;            /* Full viewport height */
+    padding-bottom: 1px;
+    height: 50vh;            /* Full viewport height */
 }
 
+#header{
+    height: 10vh;            
+}
+
+#q1{
+    height: 30vh;            
+}
+#q2{
+    height: 20vh;            
+}
 .outline {
     /* position: absolute; */
     border-radius: 25px;
@@ -28,10 +38,30 @@
     text-align: center;
 }
 
+.slidercontainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.sliderwrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* aligns the items next to each other */
+    width: 100%;
+}
+
+.min,
+.max {
+  width: 0 0 30px; /* position of max*/
+  text-align: center;
+}
 
 .slider {
-    appearance: none;
-    width: 100%;
+    flex-grow: 1; /* fills out the rest of the space */
+    margin: 0 20px;
+    appearance: none; /* for styling */
     height: 15px;
     border-radius: 5px;  
     background: #d3d3d3;

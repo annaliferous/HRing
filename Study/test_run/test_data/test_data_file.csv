@@ -1,5 +1,0 @@
-condition_id, participation_id, calibration_value, min, max, time_start, time_stop, canvas_select, intensity, height
-rise,,,,100,,,,,
-fall,,,,80,,,,,
-olymp,,,,120,,,,,
-tartarus,,,,20,,,,,
