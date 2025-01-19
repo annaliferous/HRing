@@ -28,13 +28,13 @@ if (e.touches) {
 
 // Coordinates
 const canvasData = {
-  rise: { x1: 50, y1: 150, x2: 100, y2: -50, x3: 150, y3: 150 },
-  fall: { x1: 50, y1: 50, x2: 100, y2: 250, x3: 150, y3: 50 },
+    slipperyUp: { x1: 50, y1: 150, x2: 100, y2: -50, x3: 150, y3: 150 },
+    slipperyDown: { x1: 50, y1: 50, x2: 100, y2: 250, x3: 150, y3: 50 },
 
 };
 
 // Functions that draw the forms
-function rise_and_fall(id, ctx) {
+function slipperySlope(id, ctx) {
 const data = canvasData[id];
 ctx.clearRect(0, 0, 200, 200);
 ctx.beginPath();
@@ -58,21 +58,11 @@ ctx.stroke();
 
 
 document.addEventListener("DOMContentLoaded", () => {
-Object.keys(canvasData).forEach(id => {
-    const canvas = document.getElementById(`${id}Canvas`);
-    const ctx = canvas.getContext("2d");
-    switch (id) {
-        case 'olymp':
-            olymp(id, ctx);
-            break;
-        case 'tartarus':
-            tartarus(id, ctx);
-            break;
-        default:
-            rise_and_fall(id, ctx);
-    }
-
-});
+    Object.keys(canvasData).forEach(id => {
+        const canvas = document.getElementById(`${id}Canvas`);
+        const ctx = canvas.getContext("2d");
+        slipperySlope(id, ctx);
+    });
 
 });
 
