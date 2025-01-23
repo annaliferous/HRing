@@ -112,7 +112,16 @@ function calculateDegreesTartarus(value){
 }
 // * (360/150)
 
+function calculateDegreesHeaven(value){
+  const slider = document.getElementById('myRange');
+  const heaven = 100;
 
+}
+
+function calculateDegreesHell(value){
+  
+
+}
 
 
 // Sends the translated slider value to the Pico
