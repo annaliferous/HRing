@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2D Line Visualization</title>
+  <link rel="stylesheet" type="text/css" href="slider_slopes.css"></link>
+</head>
+<body>
+  <div class="container">
+    <div class="outline">
+      <div class="headline">
+          <p>Please move the circle to the end point</p>
+      </div>
+      <div>
+        <p>Value: <span id="pathValue"></span></p>
+      </div>
+      <div class="slidecontainer">
+          <input type="range" min="0" max="100" value="0" class="slider" id="myRange"
+          oninput="sendSliderValue(this.value)">
+      </div>
+      <div>
+        <button onclick="connect()">Connect to Pico</button>
+        <button class="button" onclick="sendButtonFunction()">Send</button>
+      </div>
+
+    </div>
+  </div>
+  <script src="slider_slopes.js"></script>
+</body>
+</html>
