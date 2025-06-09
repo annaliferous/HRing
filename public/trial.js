@@ -1,6 +1,6 @@
 //Only show Calibration slider in the beginning
-document.getElementById("screen").style.display = "none";
-document.getElementById("selection").style.display = "none";
+//document.getElementById("screen").style.display = "none";
+//document.getElementById("selection").style.display = "none";
 
 //Define Sliders
 const calibration_slider = document.getElementById('calibration_slider');
@@ -33,6 +33,7 @@ if (e.touches) {
 }
 // Update slider position logic here using clientX
 };
+/*
 // Time how long dragging the slider takes
 let startTime;
 let stopTime;
@@ -97,7 +98,7 @@ screen_slider.addEventListener('mouseup', () => {
     }
     
 
-});
+}); */
 // Calibration
 const sliders = [calibration_slider, screen_slider];
 sliders.forEach(slider => {
@@ -122,22 +123,18 @@ calibration_slider.addEventListener('input', function() {
 });
    
 
-// connect to WebSocket
-const ws = new WebSocket('ws://localhost:8080');
 
-// sends the Slider values to the Pico
-function calibration_sendSliderValue(value) {
-  value = parseInt(value);
-  ws.send(value);
-  console.log('Sent value:', value);
-}
+
 
 // Saves the current Slider value in localStorage
 function setSliderValue(value){
     const calibrationValue = parseInt(value);
     localStorage.setItem('calibrationValue', calibrationValue);
 }
-
+function calibration_sendSliderValue(value) {
+    // You can do something useful here, like logging or storing the value
+    console.log("Slider value changed:", value);
+}
 
 const participation_id = document.getElementById('participation_id');
 
@@ -152,11 +149,25 @@ function sendButtonFunction(){
   document.getElementById("calibration").style.display = "none";
   document.getElementById("screen").style.display = "block";
 
+  fetch("http://localhost:3000/save", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      calibrationValue,
+      participationId
+    }),
+  })
+  .then(response => response.text())
+  .then(data => alert(data))
+  .catch(err => console.error(err))
+
   
 }
 
 
-// Screen
+/* // Screen
 
 
 // Retrieve the values from localStorage
@@ -232,7 +243,7 @@ function calculateDegreesRise(value) {
   // * (360/150)
 
 // Function to reset the servos before moving the slider
-async function resetServos() {
+/* async function resetServos() {
   if (writer) {
       try {
           let resetValue = parseInt(calibrationValue);
@@ -245,7 +256,7 @@ async function resetServos() {
       console.log('Writer not initialized. Cannot reset servos.');
   }
 }
-  
+   
   document.getElementById('screen_slider').addEventListener('input', function() {
     // Get the slider element and its current value
     const slider = document.getElementById('screen_slider');
@@ -289,7 +300,7 @@ async function resetServos() {
           degrees = calculateDegreesTartarus(parseInt(slider.value));
           break;
   
-      } */
+      } 
   
       
       await writer.write(degrees.toString() + '\n');
@@ -428,4 +439,4 @@ function sendQuestionnaire() {
   document.getElementById("selection").style.display = "none";
   screen_slider.min = 0;
   screen_slider.value = screen_slider.min;
-}
+} */
