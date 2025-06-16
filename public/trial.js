@@ -1,5 +1,5 @@
 //Only show Calibration slider in the beginning
-//document.getElementById("screen").style.display = "none";
+document.getElementById("screen").style.display = "none";
 //document.getElementById("selection").style.display = "none";
 
 //Define Sliders
@@ -33,7 +33,6 @@ if (e.touches) {
 }
 // Update slider position logic here using clientX
 };
-/*
 // Time how long dragging the slider takes
 let startTime;
 let stopTime;
@@ -46,59 +45,46 @@ screen_slider.addEventListener('mousedown', () => {
       isDragging = true;
       startTime = Date.now(); // Record the start time
       console.log(startTime)
+    
   }
+  
 });
+
 // Detect when the slider is dragged (input event)
-screen_slider.addEventListener('input', () => {
-    if (isDragging) {
-        let currentTimestamp = Date.now();
-        if (lastTimestamp !== null) {
-          const timeDifference = currentTimestamp - lastTimestamp;
-
-          // Check if the movement was too quick
-          if (timeDifference > minInterval) {
-              message.textContent = "You're moving the slider too quickly!";
-              message.style.color = 'orange';
-          }
-          // Check if the movement was too slow
-          else if (timeDifference > maxInterval) {
-              message.textContent = "You're moving the slider too quickly!";
-              message.style.color = 'red';
-          } else {
-              message.textContent = "";
-          }
-      }
-
-      // Update the lastTimestamp to the current time
-      lastTimestamp = currentTimestamp;
-        
-    }   
+//sending value to pico
+calibration_slider.addEventListener('input', () => {
+    fetch("http://localhost:3000/live", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ calibrationValue }),
+  }); 
 });
+// sending values to the pico
+
 screen_slider.addEventListener('mouseup', () => {
   // add counter when reached 4, then, the actual trial will start
+  const participationId = participation_id.value;res
     if (screen_slider.value == screen_slider.max) {
       stopTime = Date.now(); 
       console.log(stopTime);
-        setTimeout(function(){
-            isDragging = false;
-            screen_slider.min = 0;
-            screen_slider.value = screen_slider.min;
-            
-            document.getElementById("screen").style.display = "none";
-            document.getElementById("selection").style.display = "block";
+      fetch("http://localhost:3000/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          startTime,
+          stopTime,
+          participationId
+        }),
+      })
+      .then(response => response.text())
+      .then(data => alert(data))
+      .catch(err => console.error(err))
 
-        }, 3000)
-    }else{
-      setTimeout(function(){
-        message.textContent = "Please begin again";
-        isDragging = false;
-        screen_slider.min = 0;
-        screen_slider.value = screen_slider.min;
-    }, 1000)
     }
-    
 
-}); */
+}); 
 // Calibration
 const sliders = [calibration_slider, screen_slider];
 sliders.forEach(slider => {
@@ -133,7 +119,7 @@ function setSliderValue(value){
 }
 function calibration_sendSliderValue(value) {
     // You can do something useful here, like logging or storing the value
-    console.log("Slider value changed:", value);
+    console.log("Slider value:", value);
 }
 
 const participation_id = document.getElementById('participation_id');
@@ -167,149 +153,132 @@ function sendButtonFunction(){
 }
 
 
-/* // Screen
+ // Screen
 
 
 // Retrieve the values from localStorage
-const canvasId = localStorage.getItem('canvasId');
-const pathValue = localStorage.getItem('pathValue');
 const calibrationValue = localStorage.getItem('calibrationValue')
+//Get slider
+const slider = document.getElementById('screen_slider');
+
+//Fixed min and max values
+const min_max = [
+  [0, 50],
+  [80, 0]
+  [0, 100],
+  [90, 0]
+]
+
+let currentMinMaxIndex = 0;
+
+// Mapping index to function
+const simulationFunctions = [
+  calculateDegreesRise,
+  calculateDegreesFall,
+  calculateDegreesOlymp,
+  calculateDegreesTartarus
+];
 
 
+// Initialize slider with the first range
+function updateSliderRange(index) {
+  const [min, max] = min_max[index];
+  //slider.value = calibrationValue + min;
+  slider.value = 0;
+
+  const func = simulationFunctions[index];
+  if (typeof func === 'function') {
+    console.log("Simulation:", func.name);
+    const simulatedValue = func(min, max, parseInt(slider.value));
+
+      fetch("http://localhost:3000/live", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ value: simulatedValue}),
+    });
+    console.log("Simulated Output:", simulatedValue);
+  } else {
+    console.warn("No simulation function for index", index);
+  }
+}
+
+updateSliderRange(currentMinMaxIndex);
+
+// Event listener for slider
+slider.addEventListener('input', () => {
+  const maxVal = parseInt(slider.max);
+  const currentVal = parseInt(slider.value);
+
+  if (currentVal >= maxVal) {
+    currentMinMaxIndex++;
+
+    if (currentMinMaxIndex < min_max.length) {
+      updateSliderRange(currentMinMaxIndex);
+    } else {
+      slider.disabled = true;
+      console.log('All simulations complete.');
+    }
+  }
+});
 
 // Calculate degrees from slider value for rise
-function calculateDegreesRise(value) {  
+function calculateDegreesRise(min,max,value) {  
 
     const slider = document.getElementById('screen_slider'); 
-    const calibrationValueN = parseInt(calibrationValue);
-    slider.max = 100  + calibrationValueN;
-    slider.min = calibrationValueN;
+    //const calibrationValueN = parseInt(calibrationValue);
+    slider.min = calibrationValue + min;
+    slider.max = calibrationValue + max;
   
     return value;
   };
   
   // Calculate degrees from slider value for fall
-  function calculateDegreesFall(value){
+  function calculateDegreesFall(min,max,value){
     const slider = document.getElementById('screen_slider');
-    const calibrationValueN = parseInt(calibrationValue)
-    slider.max = 120 + calibrationValueN;
-    slider.min = calibrationValueN;
+    //const calibrationValueN = parseInt(calibrationValue)
+    slider.max = calibrationValue + min;
+    slider.min = calibrationValue + max;
 
   
     return slider.max - value;
   
   }
   
-  //Calculate degrees from slider value for olymp
-  function calculateDegreesOlymp(value){
+ function calculateDegreesOlymp(min, max, value) {
+  const minVal = calibrationValue + min;
+  const maxVal = calibrationValue + max;
+  const midVal = (minVal + maxVal) / 2;
 
-    const slider = document.getElementById('screen_slider');
-    const calibrationValueN = parseInt(calibrationValue)
-    slider.min = calibrationValueN
-    slider.max = 140  + calibrationValueN
-    const peakValue = 140  + calibrationValueN;
-    console.log("Peak:",peakValue);
+  slider.min = minVal;
+  slider.max = maxVal;
 
-
-    if (value <= (peakValue/2)) {
-      // First half: Increase from min to peak
-      return value*2;
-    } else {
-      // Second half: Decrease from peak back to min
-      return (peakValue - value)*2;
-    }
-  
-  }
-  
-  
-  
-  //Calculate degrees from slider value fo tartarus
-  function calculateDegreesTartarus(value){
-    const slider = document.getElementById('screen_slider');
-    const calibrationValueN = parseInt(calibrationValue, 10)
-    slider.min = calibrationValueN
-    slider.max = 90  + calibrationValueN
-    const peakValue = slider.max;
-    console.log("Peak:",peakValue);
-
-
-  
-    if (value <= (peakValue/2)){
-      return (peakValue - value)*2;
-    } else {
-      return value*2;
-    }
-  }
-  // * (360/150)
-
-// Function to reset the servos before moving the slider
-/* async function resetServos() {
-  if (writer) {
-      try {
-          let resetValue = parseInt(calibrationValue);
-          await writer.write(resetValue.toString() + '\n');  // Reset both servos to 0
-          console.log('Reset servos to calibrationValue:', resetValue);
-      } catch (error) {
-          console.error('Failed to reset servos:', error);
-      }
+  if (value <= midVal) {
+    // Rising part
+    return (value - minVal) * 2;
   } else {
-      console.log('Writer not initialized. Cannot reset servos.');
+    // Falling part
+    return (maxVal - value) * 2;
   }
 }
-   
-  document.getElementById('screen_slider').addEventListener('input', function() {
-    // Get the slider element and its current value
-    const slider = document.getElementById('screen_slider');
-    const max = parseInt(slider.max);  // Get the maximum value of the slider
-    //touchup
 
-    // Check if the current value of the slider equals the maximum
-    if (parseInt(slider.value) === max) {
-        // Redirect to a new HTML page when the slider reaches the end
-        setTimeout(function(){
-          //document.getElementById("screen").style.display = "none";
-          //document.getElementById("selection").style.display = "block";
-        }, 2000)
-        
-    }
-});
+function calculateDegreesTartarus(min, max, value) {
+  const minVal = calibrationValue + min;
+  const maxVal = calibrationValue + max;
+  const midVal = (minVal + maxVal) / 2;
 
-  
-  
-  // Sends the translated slider value to the Pico
-  async function screen_sendSliderValue() {
-    if (writer) {
-      resetServos();
-      const slider = document.getElementById('screen_slider');
-      let degrees;
-      degrees = calculateDegreesRise(parseInt(slider.value));
-      //degrees = calculateDegreesFall(parseInt(slider.value));
-      //degrees = calculateDegreesOlymp(parseInt(slider.value));
-      //degrees = calculateDegreesTartarus(parseInt(slider.value));
-      /* switch(canvasId){
-        case 'rise':
-          degrees = calculateDegreesRise(parseInt(slider.value));
-          break;
-        case 'fall':
-          degrees = calculateDegreesFall(parseInt(slider.value));
-          break;
-        case 'olymp':
-          degrees = calculateDegreesOlymp(parseInt(slider.value));
-          break;
-        case 'tartarus':
-          degrees = calculateDegreesTartarus(parseInt(slider.value));
-          break;
-  
-      } 
-  
-      
-      await writer.write(degrees.toString() + '\n');
-      console.log('Sent value: ', degrees);
-      console.log(calibrationValue);
-    } 
+  slider.min = minVal;
+  slider.max = maxVal;
+
+  if (value <= midVal) {
+    // Falling part
+    return (midVal - value) * 2;
+  } else {
+    // Rising part
+    return (value - midVal) * 2;
   }
-  screen_sendSliderValue()
+}
 
+/*
 // Selection
 
 // Coordinates
