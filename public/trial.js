@@ -161,68 +161,8 @@ const calibrationValue = localStorage.getItem('calibrationValue')
 //Get slider
 const slider = document.getElementById('screen_slider');
 
-//Fixed min and max values
-const min_max = [
-  [0, 50],
-  [80, 0]
-  [0, 100],
-  [90, 0]
-]
-
-let currentMinMaxIndex = 0;
-
-// Mapping index to function
-const simulationFunctions = [
-  calculateDegreesRise,
-  calculateDegreesFall,
-  calculateDegreesOlymp,
-  calculateDegreesTartarus
-];
-
-
-// Initialize slider with the first range
-function updateSliderRange(index) {
-  const [min, max] = min_max[index];
-  //slider.value = calibrationValue + min;
-  slider.value = 0;
-
-  const func = simulationFunctions[index];
-  if (typeof func === 'function') {
-    console.log("Simulation:", func.name);
-    const simulatedValue = func(min, max, parseInt(slider.value));
-
-      fetch("http://localhost:3000/live", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ value: simulatedValue}),
-    });
-    console.log("Simulated Output:", simulatedValue);
-  } else {
-    console.warn("No simulation function for index", index);
-  }
-}
-
-updateSliderRange(currentMinMaxIndex);
-
-// Event listener for slider
-slider.addEventListener('input', () => {
-  const maxVal = parseInt(slider.max);
-  const currentVal = parseInt(slider.value);
-
-  if (currentVal >= maxVal) {
-    currentMinMaxIndex++;
-
-    if (currentMinMaxIndex < min_max.length) {
-      updateSliderRange(currentMinMaxIndex);
-    } else {
-      slider.disabled = true;
-      console.log('All simulations complete.');
-    }
-  }
-});
-
 // Calculate degrees from slider value for rise
-function calculateDegreesRise(min,max,value) {  
+function rise(min,max,value) {  
 
     const slider = document.getElementById('screen_slider'); 
     //const calibrationValueN = parseInt(calibrationValue);
@@ -233,7 +173,7 @@ function calculateDegreesRise(min,max,value) {
   };
   
   // Calculate degrees from slider value for fall
-  function calculateDegreesFall(min,max,value){
+  function fall(min,max,value){
     const slider = document.getElementById('screen_slider');
     //const calibrationValueN = parseInt(calibrationValue)
     slider.max = calibrationValue + min;
@@ -244,7 +184,7 @@ function calculateDegreesRise(min,max,value) {
   
   }
   
- function calculateDegreesOlymp(min, max, value) {
+ function olymp(min, max, value) {
   const minVal = calibrationValue + min;
   const maxVal = calibrationValue + max;
   const midVal = (minVal + maxVal) / 2;
@@ -261,7 +201,7 @@ function calculateDegreesRise(min,max,value) {
   }
 }
 
-function calculateDegreesTartarus(min, max, value) {
+function tartarus(min, max, value) {
   const minVal = calibrationValue + min;
   const maxVal = calibrationValue + max;
   const midVal = (minVal + maxVal) / 2;
@@ -277,6 +217,59 @@ function calculateDegreesTartarus(min, max, value) {
     return (value - midVal) * 2;
   }
 }
+
+//Fixed min and max values for the functions
+const funcArray = [
+  [ (value) => rise(0, 50, value),
+    (value) => fall(80, 0, value),
+    (value) => olymp(0, 100, value),
+    (value) => tartarus(90, 0, value),
+
+  ]
+];
+
+let currentMinMaxIndex = 0;
+
+
+// Initialize slider with the first range
+function updateSliderRange(index) {
+  const functions = funcArray[index];
+
+  const currentValue = parseInt(slider.value);
+
+  functions.forEach((fn, i) => {
+    const simulatedValue = fn(currentValue);
+    console.log(`Function ${i}:`, simulatedValue)
+
+    fetch("http://localhost:3000/live", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ value: simulatedValue}),
+    });
+  });
+}
+
+updateSliderRange(currentMinMaxIndex);
+
+// Event listener for slider
+slider.addEventListener('input', () => {
+  const maxVal = parseInt(slider.max);
+  const currentVal = parseInt(slider.value);
+
+  if (currentVal >= maxVal) {
+    currentMinMaxIndex++;
+
+    if (currentMinMaxIndex < funcArray.length) {
+      slider.value = 0;
+      updateSliderRange(currentMinMaxIndex);
+    } else {
+      slider.disabled = true;
+      console.log('All simulations complete.');
+    }
+  }
+});
+
+
 
 /*
 // Selection
