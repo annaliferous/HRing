@@ -229,7 +229,8 @@ const funcArray = [
 ];
 
 let currentMinMaxIndex = 0;
-
+//activate Questiinnaire
+let isQuestionnaireActive = false;
 
 // Initialize slider with the first range
 function updateSliderRange(index) {
@@ -264,7 +265,7 @@ slider.addEventListener('input', () => {
       updateSliderRange(currentMinMaxIndex);
     } else {
       slider.disabled = true;
-      console.log('All simulations complete.');
+      console.log('All functions complete.');
     }
   }
 });
