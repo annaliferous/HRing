@@ -21,12 +21,12 @@ Before you begin, ensure you have the following installed on your machine:
    First, clone the project to your local machine using Git.
 
    ```bash
-   git clone https://github.com/annaliferous/QueerdOMM.git
+   git clone https://github.com/annaliferous/HRing.git
 
 2. **Navigate to the project directory**
 
    ```bash
-   cd QueerdOMM
+   cd HRing
 
 3. **Install dependencies**
 
