@@ -249,7 +249,7 @@ function updateSliderRange(index) {
     });
   });
 }
-
+//changes
 updateSliderRange(currentMinMaxIndex);
 
 // Event listener for slider
