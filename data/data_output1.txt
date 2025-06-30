@@ -12,3 +12,10 @@ calibrationValue: 8
 participationId: 1
 calibrationValue: 13
 participationId: 1
+calibrationValue: 6
+participationId: 1
+canvasId: rise
+participationId: 1
+q1Value: 27
+q2Value: 36
+participationId: 1
