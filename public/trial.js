@@ -50,6 +50,16 @@ screen_slider.addEventListener('mousedown', () => {
     }
 });
 
+screen_slider.addEventListener('input', () => {
+    const value = screen_slider.value;
+    fetch("http://localhost:3000/live", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value }),
+    })
+    .catch(err => console.error('Live value send error:', err));
+})
+
 // Detect when the slider is dragged (input event)
 //sending value to pico
 calibration_slider.addEventListener('input', () => {
@@ -433,6 +443,22 @@ function sendQuestionnaire() {
     const q2Value = q2slider.value;
 
     console.log("Questionnaire submitted - Q1:", q1Value, "Q2:", q2Value);
+    // Hide questionnaire, show slider again
+    document.getElementById("selection").style.display = "none";
+    document.getElementById("screen").style.display = "block";
+
+    
+
+    // Prepare slider for next range
+        currentMinMaxIndex++;
+        if (currentMinMaxIndex < funcArray.length) {            
+            screen_slider.value = 0;
+            updateSliderRange(currentMinMaxIndex);
+            screen_slider.disabled = false;
+            isQuestionnaireActive = false;
+        } else {
+            console.log('All functions complete.');
+        }
 
     fetch("http://localhost:3000/save", {
         method: "POST",
@@ -448,7 +474,6 @@ function sendQuestionnaire() {
     .then(response => response.text())
     .then(data => {
         console.log('Questionnaire data saved:', data);
-        alert('Vielen Dank! Das Experiment ist abgeschlossen.');
         
         // Optional: Reset für nächsten Teilnehmer
         // location.reload();
