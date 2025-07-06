@@ -63,3 +63,15 @@ participationId: 1
 q1Value: 0
 q2Value: 10
 participationId: 1
+calibrationValue: 16
+participationId: 1
+startTime: 1751818367781
+stopTime: 1751818371320
+participationId: 1
+canvasId: rise
+participationId: 1
+q1Value: 13
+q2Value: 11
+participationId: 1
+calibrationValue: 5
+participationId: 1
