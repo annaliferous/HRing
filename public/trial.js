@@ -52,13 +52,20 @@ screen_slider.addEventListener('mousedown', () => {
 
 screen_slider.addEventListener('input', () => {
     const value = screen_slider.value;
-    fetch("http://localhost:3000/live", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ value }),
-    })
-    .catch(err => console.error('Live value send error:', err));
-})
+    
+    // Aktuelle Funktion aus funcArray verwenden
+    if (currentFunctionIndex < funcArray.length) {
+        const currentFunction = funcArray[currentFunctionIndex];
+        const transformedValue = currentFunction(value);
+        
+        fetch("http://localhost:3000/live", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ value: transformedValue }),
+        })
+        .catch(err => console.error('Live value send error:', err));
+    }
+});
 
 // Detect when the slider is dragged (input event)
 //sending value to pico
@@ -74,7 +81,6 @@ calibration_slider.addEventListener('input', () => {
 
 // sending values to the pico
 screen_slider.addEventListener('mouseup', () => {
-    // BUGFIX: Entferne das "res" am Ende der Zeile
     const participationId = participation_id.value;
     
     if (screen_slider.value == screen_slider.max) {
@@ -89,13 +95,20 @@ screen_slider.addEventListener('mouseup', () => {
             body: JSON.stringify({
                 startTime,
                 stopTime,
-                participationId
+                participationId,
+                functionIndex: currentFunctionIndex
             }),
         })
         .then(response => response.text())
         .then(data => {
             console.log('Time data saved:', data);
-            alert(data);
+            
+            // Zum Questionnaire wechseln
+            document.getElementById("screen").style.display = "none";
+            document.getElementById("selection").style.display = "block";
+            document.getElementById("canvases").style.display = "block";
+            document.getElementById("q1").style.display = "none";
+            document.getElementById("q2").style.display = "none";
         })
         .catch(err => console.error('Save time data error:', err));
     }
@@ -164,8 +177,6 @@ function sendButtonFunction(){
     .then(response => response.text())
     .then(data => {
         console.log('Calibration data saved:', data);
-        // Entferne Alert hier, da es störend sein kann
-        // alert(data);
     })
     .catch(err => {
         console.error('Save calibration error:', err);
@@ -230,62 +241,34 @@ function tartarusCalc(min, max, value) {
     }
 }
 
-//Fixed min and max values for the functions
+// Fixed functions array - jetzt als einzelne Funktionen statt nested array
 const funcArray = [
-    [
-        (value) => riseCalc(0, 50, value),
-        (value) => fallCalc(80, 0, value),
-        (value) => olympCalc(0, 100, value),
-        (value) => tartarusCalc(90, 0, value),
-    ]
+    (value) => riseCalc(0, 50, value),
+    (value) => fallCalc(80, 0, value),
+    (value) => olympCalc(0, 100, value),
+    (value) => tartarusCalc(90, 0, value),
 ];
 
-let currentMinMaxIndex = 0;
-//activate Questionnaire
-let isQuestionnaireActive = false;
+let currentFunctionIndex = 0;
 
-// Initialize slider with the first range
-function updateSliderRange(index) {
-    const functions = funcArray[index];
-    const currentValue = parseInt(slider.value);
-
-    /* functions.forEach((fn, i) => {
-        const simulatedValue = fn(currentValue);
-        console.log(`Function ${i}:`, simulatedValue)
-
-        fetch("http://localhost:3000/live", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ value: simulatedValue}),
-        });
-    }); */
+// Initialize slider with the first function
+function initializeSliderForCurrentFunction() {
+    if (currentFunctionIndex < funcArray.length) {
+        const currentFunction = funcArray[currentFunctionIndex];
+        // Setze slider auf Minimum und führe die Funktion aus um min/max zu setzen
+        slider.value = slider.min;
+        currentFunction(slider.value);
+        slider.disabled = false;
+        console.log(`Initialized function ${currentFunctionIndex + 1} of ${funcArray.length}`);
+    } else {
+        console.log('All functions completed!');
+        slider.disabled = true;
+        // Hier könnten Sie zum Ende-Bildschirm wechseln
+    }
 }
 
-//changes
-updateSliderRange(currentMinMaxIndex);
-
-// Event listener for slider
-slider.addEventListener('input', () => {
-    const maxVal = parseInt(slider.max);
-    const currentVal = parseInt(slider.value);
-
-    if (currentVal >= maxVal) {
-        currentMinMaxIndex++;
-
-        if (currentMinMaxIndex < funcArray.length) {
-            slider.value = 0;
-            updateSliderRange(currentMinMaxIndex);
-        } else {
-            slider.disabled = true;
-            console.log('All functions complete.');
-            // Aktiviere Fragebogen
-            document.getElementById("screen").style.display = "none";
-            document.getElementById("selection").style.display = "block";
-        }
-    }
-});
-
-// Selection
+// Initialize with first function
+initializeSliderForCurrentFunction();
 
 // Coordinates
 const canvasData = {
@@ -389,7 +372,8 @@ function buttonFunctions(canvasId) {
         },
         body: JSON.stringify({
             canvasId,
-            participationId
+            participationId,
+            functionIndex: currentFunctionIndex
         }),
     })
     .then(response => response.text())
@@ -443,23 +427,7 @@ function sendQuestionnaire() {
     const q2Value = q2slider.value;
 
     console.log("Questionnaire submitted - Q1:", q1Value, "Q2:", q2Value);
-    // Hide questionnaire, show slider again
-    document.getElementById("selection").style.display = "none";
-    document.getElementById("screen").style.display = "block";
-
     
-
-    // Prepare slider for next range
-        currentMinMaxIndex++;
-        if (currentMinMaxIndex < funcArray.length) {            
-            screen_slider.value = 0;
-            updateSliderRange(currentMinMaxIndex);
-            screen_slider.disabled = false;
-            isQuestionnaireActive = false;
-        } else {
-            console.log('All functions complete.');
-        }
-
     fetch("http://localhost:3000/save", {
         method: "POST",
         headers: {
@@ -468,15 +436,34 @@ function sendQuestionnaire() {
         body: JSON.stringify({
             q1slider: q1Value,
             q2slider: q2Value,
-            participationId
+            participationId,
+            functionIndex: currentFunctionIndex
         }),
     })
     .then(response => response.text())
     .then(data => {
         console.log('Questionnaire data saved:', data);
         
-        // Optional: Reset für nächsten Teilnehmer
-        // location.reload();
+        // Zum nächsten Durchgang wechseln
+        currentFunctionIndex++;
+        
+        if (currentFunctionIndex < funcArray.length) {
+            // Zurück zum Screen Slider für nächste Funktion
+            document.getElementById("selection").style.display = "none";
+            document.getElementById("screen").style.display = "block";
+            
+            // Slider zurücksetzen und für nächste Funktion initialisieren
+            screen_slider.value = screen_slider.min;
+            initializeSliderForCurrentFunction();
+            
+            console.log(`Starting function ${currentFunctionIndex + 1} of ${funcArray.length}`);
+        } else {
+            console.log('All functions completed!');
+            // Hier könnten Sie eine Abschlussseite anzeigen
+            alert('Alle Funktionen abgeschlossen! Vielen Dank für Ihre Teilnahme.');
+            // Optional: Seite neu laden für nächsten Teilnehmer
+            // location.reload();
+        }
     })
     .catch(err => {
         console.error('Save questionnaire error:', err);
