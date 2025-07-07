@@ -67,11 +67,8 @@
                 <p>Please click "Send" when you start to feel any pressure</p>
             </div>
             <div class="slidecontainer">
-                <input type="range" min="0" max="220" value="0" class="slider" id="myRange"
-                    oninput="sendSliderValue(this.value)" />
+                <input type="range" min="0" max="180" value="0" class="slider" id="myRange"/>
                 <p>Value: <span id="demo"></span></p>
-                <button onclick="connect()">Connect to Pico</button>
-                <button class="button" onclick="sendButtonFunction()">Send</button>
             </div>
         </div>
     </div>
@@ -120,66 +117,18 @@
     //show current value
     var output = document.getElementById("demo");
     output.innerHTML = slider.value;
-    // Update Value
-    //slider.oninput = function() {
-      //  output.innerHTML = this.value;
-        //console.log('Slider moved, value:', this.value); 
-    //}
-    slider.addEventListener('input', function() {
-        const value = this.value;
-        sendSliderValue(value);  // Call sendSliderValue when slider moves
-        output.innerHTML = value;  // Update the displayed value
-        //console.log('Slider value:', value);  // Log for debugging
+ 
+    //sending value to pico
+    slider.addEventListener('input', () => {
+        const value = slider.value;
+        fetch("http://localhost:3000/live", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ value }),
+        })
+        .catch(err => console.error('Live value send error:', err));
     });
-   
-
-    // connects to the pico
-    async function connect() {
-        try {
-            port = await navigator.serial.requestPort();
-            await port.open({ baudRate: 115200 });
-
-            const textEncoder = new TextEncoderStream();
-            const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
-            writer = textEncoder.writable.getWriter();
-
-            console.log('Connected to Pico');
-            //console.log('Writer initialized:', writer);
-
-        } catch (error) {
-        console.error('Failed to connect:', error);
-        }
-        
-    }
-
-    // sends the Slider values to the Pico
-    async function sendSliderValue(value) {
-        if (writer) {
-            try {
-                value = parseInt(value);
-                await writer.write(value.toString() + '\n');
-                console.log('Sent value:', value);
-            }catch (error){
-                console.error('Failed to send value:', error);
-            }
-        }else {
-            console.log('Writer not initialized. Cannot send value.');
-        }
-    }
-
-    // Saves the current Slider value in localStorage
-    function set(value){
-        const calibrationValue = parseInt(value);
-        localStorage.setItem('calibrationValue', calibrationValue);
-    }
-
-
-    // Functions activated after clicking the Button "Send"
-    function sendButtonFunction(){
-        window.open('../Slider/slider.html');
-        set(this.value);
-        console.log("Button pressed");
-    }
+    
 
 
 </script>
