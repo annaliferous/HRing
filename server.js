@@ -18,62 +18,51 @@ let port;
 let parser;
 
 try {
-    port = new SerialPort({ path: "/dev/ttyACM0", baudRate: 9600 });
+    //Connection with Pico with Serial
+    const { SerialPort } = require("serialport");
+    
+    port = new SerialPort({ 
+        path: "/dev/ttyACM0", 
+        baudRate: 9600,
+        autoOpen: false
+    });
+
+    // Parser for received data
     parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
     
-    port.on('open', () => {
-        console.log('Serial port opened successfully');
+    //Open Port
+     // Port öffnen
+    port.open((err) => {
+        if (err) {
+            console.error('Failed to open serial port:', err);
+            port = null;
+        } else {
+            console.log('Serial port opened successfully');
+            
+            // Listener für eingehende Daten vom Pico
+            parser.on('data', (data) => {
+                console.log(`📥 Received from Pico: ${data}`);
+            });
+        }
     });
     
     port.on('error', (err) => {
         console.error('Serial port error:', err);
     });
     
-    // Höre auf Rückmeldungen vom Pico
-    parser.on('data', (data) => {
-        const response = data.trim();
-        console.log(`Pico response: ${response}`);
-        
-        // Parse die Antwort
-        if (response.startsWith('OK:')) {
-            const values = response.substring(3).split(',');
-            if (values.length >= 4) {
-                const [pos1, pos2, pulse1, pulse2] = values;
-                console.log(`✓ Servos set - Pos1: ${pos1}°, Pos2: ${pos2}°, Pulse1: ${pulse1}ns, Pulse2: ${pulse2}ns`);
-                
-                // Optional: Speichere die Servo-Werte in eine Log-Datei
-                const logEntry = `${new Date().toISOString()}: Pos1=${pos1}, Pos2=${pos2}, Pulse1=${pulse1}, Pulse2=${pulse2}\n`;
-                fs.appendFile('data/servo_log.txt', logEntry, (err) => {
-                    if (err) console.error('Log write error:', err);
-                });
-            }
-        } else if (response.startsWith('ERROR:')) {
-            console.error(`❌ Pico error: ${response.substring(6)}`);
-        }
-    });
-    
 } catch (err) {
     console.error('Failed to initialize serial port:', err);
     console.log('Server will continue without serial port functionality');
+    port = null;
 }
+
+//Server
 
 server.use(cors());
 server.use(express.json());
 
 server.get('/', (req, res) => {
     res.send('Express server is up and running!');
-});
-
-// Neue Route zum Abrufen der Servo-Logs
-server.get('/servo-log', (req, res) => {
-    const logFile = path.join(__dirname, 'data/servo_log.txt');
-    if (fs.existsSync(logFile)) {
-        const logData = fs.readFileSync(logFile, 'utf8');
-        const lines = logData.split('\n').filter(line => line.trim()).slice(-50); // Letzte 50 Einträge
-        res.json({ logs: lines });
-    } else {
-        res.json({ logs: [] });
-    }
 });
 
 server.post("/save", (req, res) => {
@@ -133,20 +122,22 @@ server.post("/save", (req, res) => {
     });
 });
 
+
+//Pico Server Data
 server.post("/live", (req, res) => {
     const { value } = req.body;
-
+    
     if (value === undefined || value === null) {
         return res.status(400).send("Missing value");
     }
-
-    // Prüfe ob SerialPort verfügbar ist
-    if (!port) {
+    
+    // Check if SerialPort is available
+    if (!port || !port.isOpen) {
         console.log("Serial port not available, value would be:", value);
         return res.send("Serial port not available, but value received");
     }
-
-    // Sende an Pico
+    
+    // Send to  Pico
     port.write(`${value}\n`, (err) => {
         if (err) {
             console.error("Live write failed:", err);
@@ -157,12 +148,12 @@ server.post("/live", (req, res) => {
     });
 });
 
-// Fehlerbehandlung für unbekannte Routen
+// Error Handling for unknown Routes
 server.use((req, res) => {
     res.status(404).send("Route not found");
 });
 
-// Globale Fehlerbehandlung
+// Global Error Handling
 server.use((err, req, res, next) => {
     console.error("Server error:", err);
     res.status(500).send("Internal server error");
@@ -181,7 +172,7 @@ process.on('SIGINT', () => {
     }
 });
 
-// Starte den Server auf Port 3000
+// Start Server on Port 3000
 server.listen(3000, () => {
     console.log('Server running at http://localhost:3000/');
 });
