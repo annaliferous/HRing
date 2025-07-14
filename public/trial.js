@@ -51,17 +51,17 @@ screen_slider.addEventListener('mousedown', () => {
 });
 
 screen_slider.addEventListener('input', () => {
-    const value = screen_slider.value;
+    const screen_value = screen_slider.value;
     
     // Aktuelle Funktion aus funcArray verwenden
     if (currentFunctionIndex < funcArray.length) {
         const currentFunction = funcArray[currentFunctionIndex];
-        const transformedValue = currentFunction(value);
+        const value = currentFunction(screen_value);
         
         fetch("http://localhost:3000/live", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ value: transformedValue }),
+            body: JSON.stringify({ value: value }),
         })
         .catch(err => console.error('Live value send error:', err));
     }
