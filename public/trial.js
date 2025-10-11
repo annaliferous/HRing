@@ -10,10 +10,9 @@ const calibrationOutput = document.getElementById("demo");
 
 let currentFunctionIndex = 0;
 let startTime, stopTime;
-let selectedCanvas = "";
-let calibrationValue = 0; // Removed localStorage dependency
+let calibrationValue = 0;
 
-// ===== SLIDER DRAG FIX FOR TOUCH =====
+// ===== SLIDER DRAG FOR TOUCH =====
 let isDragging = false;
 
 function startDrag(e) {
@@ -28,7 +27,6 @@ function drag(e) {
 }
 function updateSlider(e) {
   const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  // (Optional) custom slider position logic
 }
 
 [calibrationSlider, screenSlider].forEach((slider) => {
@@ -77,9 +75,12 @@ const funcArray = [
 
 // ===== INITIALIZE SLIDER FOR CURRENT FUNCTION =====
 function initializeSliderForCurrentFunction() {
-  if (currentFunctionIndex < funcArray.length) {
-    screenSlider.value = screenSlider.min;
-    funcArray[currentFunctionIndex](screenSlider.value);
+  if (currentFunctionIndex <= funcArray.length) {
+    // Set new Range
+    //funcArray[currentFunctionIndex](screenSlider.value);
+    funcArray[currentFunctionIndex](calibrationValue);
+    // Set new Min
+    //screenSlider.value = screenSlider.min;
     screenSlider.disabled = false;
   } else {
     screenSlider.disabled = true;
@@ -121,8 +122,6 @@ screenSlider.addEventListener("input", () => {
 });
 screenSlider.addEventListener("mouseup", () => {
   if (screenSlider.value == screenSlider.max) {
-    screenSection.style.display = "none";
-    selectionSection.style.display = "block";
     stopTime = Date.now();
     sendData("/save", {
       startTime,
@@ -130,13 +129,9 @@ screenSlider.addEventListener("mouseup", () => {
       participationId: participationIdInput.value,
       functionIndex: currentFunctionIndex,
     }).then(() => {
+      screenSlider.value = 0;
       currentFunctionIndex++;
-      if (currentFunctionIndex < funcArray.length) {
-        selectionSection.style.display = "none";
-        screenSection.style.display = "block";
-        screenSlider.value = screenSlider.min;
-        initializeSliderForCurrentFunction();
-      }
+      initializeSliderForCurrentFunction();
     });
   }
 });
