@@ -157,6 +157,14 @@ server.listen(3000, () => {
   console.log("Server running at http://localhost:3000/");
 });
 
-/* server.listen(port_frontend, () => {
-  console.log("Server running at http://localhost:5500/");
-}); */
+// ===== CalculationFunctions ===== //
+
+function line(calVal, dataPoint) {
+  let value;
+  for (let i = 0; i < dataPoint; i++) {
+    value = calVal += 1;
+  }
+  return value;
+}
+
+function slope(calVal, vertex) {}

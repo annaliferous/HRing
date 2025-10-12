@@ -14,7 +14,30 @@ let currentFunctionIndex = 0;
 let startTime, stopTime;
 let calibrationValue = 0;
 
-// ===== SLIDER DRAG FOR TOUCH =====
+// ===== SLIDER DRAG FOR TOUCH ===== //
+function createSlider() {
+  const trialSlider = document.getElementById("screen");
+  trialSlider.innerHTML = `
+  <div class="container">
+    <div class="outline">
+      <div class="headline">
+        <p>Please move the circle to the end point</p>
+      </div>
+      <div class="slidecontainer">
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value="0"
+          class="slider"
+          id="screen_slider"
+        />
+      </div>
+    </div>
+  </div>;`;
+}
+
+// ===== SLIDER DRAG FOR TOUCH ===== //
 let isDragging = false;
 
 function startDrag(e) {
@@ -40,7 +63,7 @@ document.addEventListener("mouseup", endDrag);
 document.addEventListener("touchmove", drag);
 document.addEventListener("touchend", endDrag);
 
-// ===== CALIBRATION EVENTS =====
+// ===== CALIBRATION EVENTS ===== //
 calibrationSlider.addEventListener("input", () => {
   calibrationOutput.textContent = calibrationSlider.value;
 });
@@ -51,12 +74,10 @@ document.getElementById("calibration_send").addEventListener("click", () => {
   }
   calibrationValue = parseInt(calibrationSlider.value);
 
-  let partId =
-    "http://localhost:3000/save/participationId/" + participationIdInput.value;
+  let partId = url + "participationId/" + participationIdInput.value;
   fetch(partId);
 
-  let calVal =
-    "http://localhost:3000/save/calibrationValue/" + calibrationValue;
+  let calVal = url + "calibrationValue/" + calibrationValue;
   fetch(calVal);
 
   calibrationSection.style.display = "none";
@@ -76,7 +97,7 @@ function chooseFunction(arr) {
 
 screenSlider.addEventListener("mousedown", () => {
   startTime = Date.now();
-  let start = "http://localhost:3000/save/startTime/" + startTime;
+  let start = url + "startTime/" + startTime;
   fetch(start);
 });
 
@@ -89,7 +110,7 @@ screenSlider.addEventListener("input", () => {
 screenSlider.addEventListener("mouseup", () => {
   if (screenSlider.value == screenSlider.max) {
     stopTime = Date.now();
-    let stop = "http://localhost:3000/save/stopTime/" + startTime;
+    let stop = url + "stopTime/" + startTime;
     fetch(stop);
 
     screenSlider.value = 0;
