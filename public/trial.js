@@ -1,12 +1,14 @@
 // ===== INITIAL SETUP =====
+
 const calibrationSection = document.getElementById("calibration");
 const screenSection = document.getElementById("screen");
-const selectionSection = document.getElementById("selection");
 
 const calibrationSlider = document.getElementById("calibration_slider");
 const screenSlider = document.getElementById("screen_slider");
 const participationIdInput = document.getElementById("participation_id");
 const calibrationOutput = document.getElementById("demo");
+
+const url = "http://localhost:3000/save/";
 
 let currentFunctionIndex = 0;
 let startTime, stopTime;
@@ -38,60 +40,9 @@ document.addEventListener("mouseup", endDrag);
 document.addEventListener("touchmove", drag);
 document.addEventListener("touchend", endDrag);
 
-// ===== FUNCTION MAPPINGS =====
-function riseCalc(min, max, value) {
-  screenSlider.min = calibrationValue + min;
-  screenSlider.max = calibrationValue + max;
-  return value;
-}
-function fallCalc(min, max, value) {
-  screenSlider.max = calibrationValue + min;
-  screenSlider.min = calibrationValue + max;
-  return screenSlider.max - value;
-}
-function olympCalc(min, max, value) {
-  const minVal = calibrationValue + min;
-  const maxVal = calibrationValue + max;
-  const midVal = (minVal + maxVal) / 2;
-  screenSlider.min = minVal;
-  screenSlider.max = maxVal;
-  return value <= midVal ? (value - minVal) * 2 : (maxVal - value) * 2;
-}
-function tartarusCalc(min, max, value) {
-  const minVal = calibrationValue + min;
-  const maxVal = calibrationValue + max;
-  const midVal = (minVal + maxVal) / 2;
-  screenSlider.min = minVal;
-  screenSlider.max = maxVal;
-  return value <= midVal ? (midVal - value) * 2 : (value - midVal) * 2;
-}
-
-const funcArray = [
-  (value) => riseCalc(0, 50, value),
-  (value) => fallCalc(80, 0, value),
-  (value) => olympCalc(0, 100, value),
-  (value) => tartarusCalc(90, 0, value),
-];
-
-// ===== INITIALIZE SLIDER FOR CURRENT FUNCTION =====
-function initializeSliderForCurrentFunction() {
-  if (currentFunctionIndex <= funcArray.length) {
-    // Set new Range
-    //funcArray[currentFunctionIndex](screenSlider.value);
-    funcArray[currentFunctionIndex](calibrationValue);
-    // Set new Min
-    //screenSlider.value = screenSlider.min;
-    screenSlider.disabled = false;
-  } else {
-    screenSlider.disabled = true;
-    alert("All functions completed!");
-  }
-}
-
 // ===== CALIBRATION EVENTS =====
 calibrationSlider.addEventListener("input", () => {
   calibrationOutput.textContent = calibrationSlider.value;
-  fetchValue(calibrationSlider.value);
 });
 document.getElementById("calibration_send").addEventListener("click", () => {
   if (!participationIdInput.value) {
@@ -100,49 +51,50 @@ document.getElementById("calibration_send").addEventListener("click", () => {
   }
   calibrationValue = parseInt(calibrationSlider.value);
 
-  sendData("/save", {
-    calibrationValue,
-    participationId: participationIdInput.value,
-  });
+  let partId =
+    "http://localhost:3000/save/participationId/" + participationIdInput.value;
+  fetch(partId);
+
+  let calVal =
+    "http://localhost:3000/save/calibrationValue/" + calibrationValue;
+  fetch(calVal);
 
   calibrationSection.style.display = "none";
   screenSection.style.display = "block";
-  initializeSliderForCurrentFunction();
 });
 
 // ===== SCREEN SLIDER EVENTS =====
-screenSlider.addEventListener("mousedown", () => {
-  if (screenSlider.value == screenSlider.min) startTime = Date.now();
-});
-screenSlider.addEventListener("input", () => {
-  if (currentFunctionIndex < funcArray.length) {
-    const value = funcArray[currentFunctionIndex](screenSlider.value);
-    fetchValue(value);
+
+let functions = ["up", "slopDown"];
+let random;
+function chooseFunction(arr) {
+  for (let i; i < arr.length; i++) {
+    random = arr[Math.random];
   }
+  return random;
+}
+
+screenSlider.addEventListener("mousedown", () => {
+  startTime = Date.now();
+  let start = "http://localhost:3000/save/startTime/" + startTime;
+  fetch(start);
 });
+
+screenSlider.addEventListener("input", () => {
+  let main = url + chooseFunction(functions) + screenSlider.value;
+  console.log(main);
+  fetch(main);
+});
+
 screenSlider.addEventListener("mouseup", () => {
   if (screenSlider.value == screenSlider.max) {
     stopTime = Date.now();
-    sendData("/save", {
-      startTime,
-      stopTime,
-      participationId: participationIdInput.value,
-      functionIndex: currentFunctionIndex,
-    }).then(() => {
-      screenSlider.value = 0;
-      currentFunctionIndex++;
-      initializeSliderForCurrentFunction();
-    });
+    let stop = "http://localhost:3000/save/stopTime/" + startTime;
+    fetch(stop);
+
+    screenSlider.value = 0;
+  } else {
+    alert("Please start from the beginning");
+    screenSlider.value = 0;
   }
 });
-
-// ===== HELPER FUNCTIONS =====
-function fetchValue(value) {
-  // Placeholder for server communication
-  console.log("Fetching value:", value);
-}
-function sendData(endpoint, data) {
-  // Placeholder for server communication
-  console.log("Sending data to", endpoint, ":", data);
-  return Promise.resolve("Success");
-}

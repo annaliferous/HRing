@@ -1,54 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="trial.css" />
     <title>HRing Trial Run</title>
-</head>
+  </head>
 
-<body>
-
+  <body>
     <!-- Calibration Screen -->
     <section id="calibration" class="calibration">
-        <div class="container">
-            <div class="outline">
-                <label for="participation_id">Participation ID:</label>
-                <input type="text" id="participation_id" maxlength="4" size="4" />
-                <br /><br />
+      <div class="container">
+        <div class="outline">
+          <label for="participation_id">Participation ID:</label>
+          <input type="text" id="participation_id" maxlength="4" size="4" />
+          <br /><br />
 
-                <div class="headline">
-                    <p>Please click "Send" when you start to feel any pressure</p>
-                </div>
+          <div class="headline">
+            <p>Please click "Send" when you start to feel any pressure</p>
+          </div>
 
-                <div class="slidecontainer">
-                    <input type="range" min="0" max="180" value="0" class="slider" id="calibration_slider" />
-                    <p>Value: <span id="demo">0</span></p>
-                    <button class="button" id="calibration_send">Send</button>
-                </div>
-            </div>
+          <div class="slidecontainer">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value="0"
+              class="slider"
+              id="calibration_slider"
+            />
+            <p>Value: <span id="demo">0</span></p>
+            <button class="button" id="calibration_send">Send</button>
+          </div>
         </div>
+      </div>
     </section>
 
     <!--Slider Task Screen-->
     <section id="screen" class="screen" style="display: none">
-        <div class="container">
-            <div class="outline">
-                <div class="headline">
-                    <p>Please move the circle to the end point</p>
-                </div>
-                <div class="slidecontainer">
-                    <input type="range" min="0" max="100" value="0" class="slider" id="screen_slider" />
-                </div>
-            </div>
+      <div class="container">
+        <div class="outline">
+          <div class="headline">
+            <p>Please move the circle to the end point</p>
+          </div>
+          <div class="slidecontainer">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value="0"
+              class="slider"
+              id="screen_slider"
+            />
+          </div>
         </div>
+      </div>
     </section>
-
-
-
     <script src="trial.js"></script>
-
-</body>
-
+  </body>
 </html>

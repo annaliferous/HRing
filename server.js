@@ -6,6 +6,9 @@ const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
 
 const server = express();
+const port_frontend = 5500;
+const qs = require("qs");
+server.set("query parser", (str) => qs.parse(str, {}));
 
 // Erstelle data Ordner falls er nicht existiert
 const dataDir = path.join(__dirname, "data");
@@ -17,7 +20,7 @@ if (!fs.existsSync(dataDir)) {
 let port;
 let parser;
 
-try {
+/* try {
   //Connection with Pico with Serial
   const { SerialPort } = require("serialport");
 
@@ -53,7 +56,7 @@ try {
   console.error("Failed to initialize serial port:", err);
   console.log("Server will continue without serial port functionality");
   port = null;
-}
+} */
 
 //Server
 
@@ -64,54 +67,44 @@ server.get("/", (req, res) => {
   res.send("Express server is up and running!");
 });
 
-server.post("/save", (req, res) => {
-  const { calibrationValue, participationId, startTime, stopTime } = req.body;
-
-  // Validierung: participationId ist für alle Operationen erforderlich
-  if (
-    !participationId &&
-    (calibrationValue ||
-      startTime ||
-      stopTime ||
-      canvasId ||
-      q1slider ||
-      q2slider)
-  ) {
-    return res.status(400).send("participationId ist erforderlich");
-  }
-
-  let content = "";
-  let responseMessage = "";
-
-  // Speichere CalibrationValue und ParticipationID
-  if (calibrationValue !== undefined && participationId) {
-    content = `calibrationValue: ${calibrationValue}\nparticipationId: ${participationId}\n`;
-    responseMessage = "Calibration data saved";
-  }
-  // Speichere startTime und stopTime
-  else if (startTime && stopTime && participationId) {
-    content = `startTime: ${startTime}\nstopTime: ${stopTime}\nparticipationId: ${participationId}\n`;
-    responseMessage = "Time data saved";
-  } else {
-    return res
-      .status(400)
-      .send("Ungültige Daten oder fehlende participationId");
-  }
-
-  // Schreibe in Datei
-  const filename = `data/data_output${participationId}.txt`;
-  fs.appendFile(filename, content, (err) => {
-    if (err) {
-      console.error("File write error:", err);
-      return res.status(500).send("Error writing file");
-    }
-    console.log(`Data saved to ${filename}:`, content.trim());
-    res.send(responseMessage);
-  });
+server.get("/save/participationId/:id", (req, res) => {
+  res.send("ParticipationId was send!");
+  console.log(req.params.id);
+});
+server.get("/save/calibrationValue/:calVal", (req, res) => {
+  res.send("calibrationValue was send!");
+  console.log(req.params.calVal);
+});
+server.get("/save/startTime/:start", (req, res) => {
+  res.send("startTime was send!");
+  console.log(req.params.start);
+});
+server.get("/save/stopTime/:stop", (req, res) => {
+  res.send("stopTime was send!");
+  console.log(req.params.stop);
+});
+server.get("/save/up:main", (req, res) => {
+  res.send("Function Up was send!");
+  console.log(req.params.main);
+});
+server.get("/save/slopeDown:main", (req, res) => {
+  res.send("Function SlopeDown was send!");
+  console.log(req.params.main);
 });
 
+// Schreibe in Datei
+/* const filename = `data/data_output${participationId}.txt`;
+fs.appendFile(filename, content, (err) => {
+  if (err) {
+    console.error("File write error:", err);
+    return res.status(500).send("Error writing file");
+  }
+  console.log(`Data saved to ${filename}:`, content.trim());
+  res.send(responseMessage);
+}); */
+
 //Pico Server Data
-server.post("/live", (req, res) => {
+/* server.post("/live", (req, res) => {
   const { value } = req.body;
 
   if (value === undefined || value === null) {
@@ -144,7 +137,7 @@ server.use((req, res) => {
 server.use((err, req, res, next) => {
   console.error("Server error:", err);
   res.status(500).send("Internal server error");
-});
+}); */
 
 // Graceful shutdown
 process.on("SIGINT", () => {
@@ -163,3 +156,7 @@ process.on("SIGINT", () => {
 server.listen(3000, () => {
   console.log("Server running at http://localhost:3000/");
 });
+
+/* server.listen(port_frontend, () => {
+  console.log("Server running at http://localhost:5500/");
+}); */
