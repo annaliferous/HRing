@@ -167,4 +167,11 @@ function line(calVal, dataPoint) {
   return value;
 }
 
-function slope(calVal, vertex) {}
+function line2(calVal, x, y) {
+  // Geradenfunktion y = ax
+  return (a = y / (x + calVal));
+}
+
+function slope(calVal, vertex) {
+  let value;
+}
