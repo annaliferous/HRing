@@ -157,21 +157,30 @@ server.listen(3000, () => {
   console.log("Server running at http://localhost:3000/");
 });
 
+// ===== data input ===== //
+
+let data = [
+  ["up", 20],
+  ["down", 50],
+  ["olymp", 120],
+  ["tartarus", 80],
+];
+
 // ===== CalculationFunctions ===== //
 
-function line(calVal, dataPoint) {
-  let value;
-  for (let i = 0; i < dataPoint; i++) {
-    value = calVal += 1;
-  }
-  return value;
-}
-
-function line2(calVal, x, y) {
+function line(calVal, x, y) {
   // Geradenfunktion y = ax
-  return (a = y / (x + calVal));
+  // x = sliderPoint
+  // y = dataPoint
+  let value = calVal;
+  return (value = (y / 100) * x);
 }
 
-function slope(calVal, vertex) {
-  let value;
-}
+/* function parabola(calVal, y, vertex) {
+  // Geradenfunktion y = ax²
+  // x = sliderPoint
+  // y = vertex
+
+  let value = calVal;
+  return (value = (y / 100) * (x ^ 2));
+} */
