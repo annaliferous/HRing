@@ -71,9 +71,12 @@ server.get("/save/participationId/:id", (req, res) => {
   res.send("ParticipationId was send!");
   console.log(req.params.id);
 });
+
+let calibrationValue;
 server.get("/save/calibrationValue/:calVal", (req, res) => {
   res.send("calibrationValue was send!");
   console.log(req.params.calVal);
+  calibrationValue = req.params.calVal;
 });
 server.get("/save/startTime/:start", (req, res) => {
   res.send("startTime was send!");
@@ -168,13 +171,16 @@ let data = [
 
 // ===== CalculationFunctions ===== //
 
-function line(calVal, x, y) {
-  // Geradenfunktion y = ax
-  // x = sliderPoint
-  // y = dataPoint
-  let value = calVal;
-  return (value = (y / 100) * x);
+//Berechnung der Steigung
+function line(calVal, dataArray) {
+  // Geradenfunktion a = y/x
+  // y = dataPoint/100
+  // x = calVal
+  dataPoint = dataArray[1];
+  return (value = dataPoint / 100 / calVal);
 }
+
+function lineValuesForPico(dataArray, sliderVal) {}
 
 /* function parabola(calVal, y, vertex) {
   // Geradenfunktion y = ax²
