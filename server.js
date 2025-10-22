@@ -86,13 +86,11 @@ server.get("/save/stopTime/:stop", (req, res) => {
   res.send("stopTime was send!");
   console.log(req.params.stop);
 });
-server.get("/save/up:main", (req, res) => {
-  res.send("Function Up was send!");
+let sliderValue;
+server.get("/save/main", (req, res) => {
+  res.send("SliderValue was send!");
   console.log(req.params.main);
-});
-server.get("/save/slopeDown:main", (req, res) => {
-  res.send("Function SlopeDown was send!");
-  console.log(req.params.main);
+  sliderValue = req.params.main;
 });
 
 // Schreibe in Datei
@@ -169,24 +167,50 @@ let data = [
   ["tartarus", 80],
 ];
 
+// https://damienmasson.com/tools/latin_square/
+const mode = [
+  [/* 0: */ "up", "down", "tartarus", "olymp"],
+  [/* 1: */ "down", "olymp", "up", "tartarus"],
+  [/* 2: */ "olymp", "tartarus", "down", "up"],
+  [/* 3: */ "tartarus", "up", "olymp", "down"],
+];
+
+let participation_id = 0; //mode % participant_id
+let mode_durchgang = 0; //0 bis 3
+let run = 0; //0 bis 11
+
+function ccd_values() {
+  //berechnung der ccd_values (+ calibration value)
+}
+
+function initializeSliderToPico() {
+  //1. welcher modus
+  //2. min_pico_value = calibration_value
+  //3. max_picov_value  (inkl. calibration wert)
+}
+
+function realTimeCalculation() {
+  if (oldSliderValue != sliderValue) {
+    actualPicoValue = in_pico_value + (sliderValue / 100) * max_pico_value;
+    oldSliderValue = sliderValue;
+    //mactualPicoValue weiterleiten
+  }
+}
+
 // ===== CalculationFunctions ===== //
 
 //Berechnung der Steigung
-function line(calVal, dataArray) {
+/* function line(calVal, dataArray) {
   // Geradenfunktion a = y/x
   // y = dataPoint/100
   // x = calVal
   dataPoint = dataArray[1];
   return (value = dataPoint / 100 / calVal);
-}
-
-function lineValuesForPico(dataArray, sliderVal) {}
+} */
 
 /* function parabola(calVal, y, vertex) {
   // Geradenfunktion y = ax²
   // x = sliderPoint
   // y = vertex
-
-  let value = calVal;
-  return (value = (y / 100) * (x ^ 2));
+  return (value = (dataPoint / 100) * (calVal ^ 2));
 } */

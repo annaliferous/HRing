@@ -102,7 +102,7 @@ screenSlider.addEventListener("mousedown", () => {
 });
 
 screenSlider.addEventListener("input", () => {
-  let main = url + chooseFunction(functions) + screenSlider.value;
+  let main = url + screenSlider.value;
   console.log(main);
   fetch(main);
 });
