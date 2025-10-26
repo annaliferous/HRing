@@ -20,7 +20,7 @@ if (!fs.existsSync(dataDir)) {
 let port;
 let parser;
 
-/* try {
+try {
   //Connection with Pico with Serial
   const { SerialPort } = require("serialport");
 
@@ -34,7 +34,7 @@ let parser;
   parser = port.pipe(new ReadlineParser({ delimiter: "\n" }));
 
   //Open Port
-  // Port öffnen
+
   port.open((err) => {
     if (err) {
       console.error("Failed to open serial port:", err);
@@ -56,7 +56,7 @@ let parser;
   console.error("Failed to initialize serial port:", err);
   console.log("Server will continue without serial port functionality");
   port = null;
-} */
+}
 
 //Server
 
@@ -94,7 +94,7 @@ server.get("/save/main", (req, res) => {
 });
 
 // Schreibe in Datei
-/* const filename = `data/data_output${participationId}.txt`;
+const filename = `data/data_output${participationId}.txt`;
 fs.appendFile(filename, content, (err) => {
   if (err) {
     console.error("File write error:", err);
@@ -102,10 +102,10 @@ fs.appendFile(filename, content, (err) => {
   }
   console.log(`Data saved to ${filename}:`, content.trim());
   res.send(responseMessage);
-}); */
+});
 
 //Pico Server Data
-/* server.post("/live", (req, res) => {
+server.post("/live", (req, res) => {
   const { value } = req.body;
 
   if (value === undefined || value === null) {
@@ -138,7 +138,7 @@ server.use((req, res) => {
 server.use((err, req, res, next) => {
   console.error("Server error:", err);
   res.status(500).send("Internal server error");
-}); */
+});
 
 // Graceful shutdown
 process.on("SIGINT", () => {
@@ -160,13 +160,6 @@ server.listen(3000, () => {
 
 // ===== data input ===== //
 
-let data = [
-  ["up", 20],
-  ["down", 50],
-  ["olymp", 120],
-  ["tartarus", 80],
-];
-
 // https://damienmasson.com/tools/latin_square/
 const mode = [
   [/* 0: */ "up", "down", "tartarus", "olymp"],
@@ -176,41 +169,45 @@ const mode = [
 ];
 
 let participation_id = 0; //mode % participant_id
-let mode_durchgang = 0; //0 bis 3
+let mode_turn = 0; //0 bis 3
 let run = 0; //0 bis 11
+
+let min_pico_value = 0;
+let max_pico_value = 0;
 
 function ccd_values() {
   //berechnung der ccd_values (+ calibration value)
 }
 
-function initializeSliderToPico() {
-  //1. welcher modus
-  //2. min_pico_value = calibration_value
-  //3. max_picov_value  (inkl. calibration wert)
+function choosePath(mode) {
+  switch (mode) {
+    case "up":
+      realTimeCalculation();
+      // code block
+      break;
+    case "down":
+      // code block
+      break;
+    case "olymp":
+      break;
+    case "tartarus":
+      break;
+    default:
+    // code block
+  }
+}
+
+function initializeSliderValuesForPico() {
+  mode_turn = mode[0];
+  min_pico_value = calibration_value;
+  max_pico_value = 80 + calibrationValue;
 }
 
 function realTimeCalculation() {
   if (oldSliderValue != sliderValue) {
-    actualPicoValue = in_pico_value + (sliderValue / 100) * max_pico_value;
+    actualPicoValue = min_pico_value + (sliderValue / 100) * max_pico_value;
     oldSliderValue = sliderValue;
-    //mactualPicoValue weiterleiten
+    //actualPicoValue weiterleiten
   }
+  return sliderValue;
 }
-
-// ===== CalculationFunctions ===== //
-
-//Berechnung der Steigung
-/* function line(calVal, dataArray) {
-  // Geradenfunktion a = y/x
-  // y = dataPoint/100
-  // x = calVal
-  dataPoint = dataArray[1];
-  return (value = dataPoint / 100 / calVal);
-} */
-
-/* function parabola(calVal, y, vertex) {
-  // Geradenfunktion y = ax²
-  // x = sliderPoint
-  // y = vertex
-  return (value = (dataPoint / 100) * (calVal ^ 2));
-} */

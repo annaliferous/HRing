@@ -85,16 +85,6 @@ document.getElementById("calibration_send").addEventListener("click", () => {
 });
 
 // ===== SCREEN SLIDER EVENTS =====
-
-let functions = ["up", "slopDown"];
-let random;
-function chooseFunction(arr) {
-  for (let i; i < arr.length; i++) {
-    random = arr[Math.random];
-  }
-  return random;
-}
-
 screenSlider.addEventListener("mousedown", () => {
   startTime = Date.now();
   let start = url + "startTime/" + startTime;
@@ -108,12 +98,14 @@ screenSlider.addEventListener("input", () => {
 });
 
 screenSlider.addEventListener("mouseup", () => {
-  if (screenSlider.value == screenSlider.max) {
+  if (screenSlider.value >= screenSlider.max) {
     stopTime = Date.now();
     let stop = url + "stopTime/" + startTime;
     fetch(stop);
 
-    screenSlider.value = 0;
+    setTimeout(() => {
+      screenSlider.value = 0;
+    }, 100);
   } else {
     alert("Please start from the beginning");
     screenSlider.value = 0;
