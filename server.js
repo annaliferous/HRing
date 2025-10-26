@@ -2,13 +2,16 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
+const qs = require("qs");
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
 
 const server = express();
 const port_frontend = 5500;
-const qs = require("qs");
+
 server.set("query parser", (str) => qs.parse(str, {}));
+server.use(cors());
+server.use(express.json());
 
 // Erstelle data Ordner falls er nicht existiert
 const dataDir = path.join(__dirname, "data");
@@ -16,7 +19,6 @@ if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
-// SerialPort mit Fehlerbehandlung und Parser
 let port;
 let parser;
 
@@ -34,7 +36,6 @@ try {
   parser = port.pipe(new ReadlineParser({ delimiter: "\n" }));
 
   //Open Port
-
   port.open((err) => {
     if (err) {
       console.error("Failed to open serial port:", err);
@@ -42,7 +43,7 @@ try {
     } else {
       console.log("✅ Serial port opened successfully");
 
-      // Listener für eingehende Daten vom Pico
+      // Listener for data from Pico
       parser.on("data", (data) => {
         console.log(`📥 Received from Pico: ${data}`);
       });
@@ -50,11 +51,11 @@ try {
 
     function sendToPico(value) {
       if (!port.isOpen) {
-        console.warn("⚠️ Port not open yet, cannot send");
+        console.warn("Port not open yet, cannot send");
         return;
       }
       port.write(`${value}\n`, (err) => {
-        if (err) console.error("❌ Write failed:", err);
+        if (err) console.error("Write failed:", err);
         else console.log(`📤 Sent to Pico: ${value}`);
       });
     }
@@ -65,15 +66,10 @@ try {
   });
 } catch (err) {
   console.error("Failed to initialize serial port:", err);
-  console.log("Server will continue without serial port functionality");
   port = null;
 }
 
-//Server
-
-server.use(cors());
-server.use(express.json());
-
+// Express Routes
 server.get("/", (req, res) => {
   res.send("Express server is up and running!");
 });
@@ -115,43 +111,7 @@ fs.appendFile(filename, content, (err) => {
   res.send(responseMessage);
 }); */
 
-//Pico Server Data
-/* server.post("/live", (req, res) => {
-  const { value } = req.body;
-
-  if (value === undefined || value === null) {
-    return res.status(400).send("Missing value");
-  }
-
-  // Check if SerialPort is available
-  if (!port || !port.isOpen) {
-    console.log("Serial port not available, value would be:", value);
-    return res.send("Serial port not available, but value received");
-  }
-
-  // Send to  Pico
-  port.write(`${value}\n`, (err) => {
-    if (err) {
-      console.error("Live write failed:", err);
-      return res.status(500).send("Serial write error");
-    }
-    console.log(`📤 Sent to Pico: ${value}`);
-    res.send("Live value sent to Pico");
-  });
-}); */
-
-// Error Handling for unknown Routes
-/* server.use((req, res) => {
-  res.status(404).send("Route not found");
-});
-
-// Global Error Handling
-server.use((err, req, res, next) => {
-  console.error("Server error:", err);
-  res.status(500).send("Internal server error");
-}); */
-
-// Graceful shutdown
+// Shutdown
 process.on("SIGINT", () => {
   console.log("Shutting down server...");
   if (port && port.isOpen) {
@@ -185,8 +145,8 @@ const mode = [
 ];
 
 let participation_id = 0; //mode % participant_id
-let mode_turn = 0; //0 bis 3
-let run = 0; //0 bis 11
+let mode_turn = 0; //0-3
+let run = 0; //0+11
 
 let min_pico_value = 0;
 let max_pico_value = 0;
@@ -198,25 +158,28 @@ function ccd_values() {
 function choosePath(mode) {
   let valueToSend;
 
-  switch (mode) {
+  const currentMode = mode[0][mode_turn];
+  console.log(`🎯 Current mode: ${currentMode}`);
+
+  switch (currentMode) {
     case "up":
       valueToSend = realTimeCalculation();
       console.log("⬆️ upValue:", valueToSend);
       break;
 
     case "down":
-      valueToSend = -realTimeCalculation(); // 👈 negated
+      valueToSend = -realTimeCalculation();
       console.log("⬇️ downValue:", valueToSend);
       break;
 
     case "olymp":
     case "tartarus":
-      console.log(`Mode ${mode} selected — no serial output.`);
-      return;
+      console.log(`Mode ${currentMode} selected — no serial output.`);
+      break;
 
     default:
-      console.warn("⚠️ Unknown mode:", mode);
-      return;
+      console.warn("⚠️ Unknown mode:", currentMode);
+      break;
   }
   sendToPico(valueToSend);
 }
