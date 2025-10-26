@@ -40,11 +40,22 @@ try {
       console.error("Failed to open serial port:", err);
       port = null;
     } else {
-      console.log("Serial port opened successfully");
+      console.log("✅ Serial port opened successfully");
 
       // Listener für eingehende Daten vom Pico
       parser.on("data", (data) => {
         console.log(`📥 Received from Pico: ${data}`);
+      });
+    }
+
+    function sendToPico(value) {
+      if (!port.isOpen) {
+        console.warn("⚠️ Port not open yet, cannot send");
+        return;
+      }
+      port.write(`${value}\n`, (err) => {
+        if (err) console.error("❌ Write failed:", err);
+        else console.log(`📤 Sent to Pico: ${value}`);
       });
     }
   });
@@ -207,20 +218,10 @@ function choosePath(mode) {
       console.warn("⚠️ Unknown mode:", mode);
       return;
   }
-
-  // --- Send the value to the Pico via serial ---
-  if (port && port.isOpen) {
-    port.write(`${valueToSend}\n`, (err) => {
-      if (err) {
-        console.error("❌ Failed to send to Pico:", err);
-      } else {
-        console.log(`📤 Sent to Pico: ${valueToSend}`);
-      }
-    });
-  } else {
-    console.warn("⚠️ Serial port not available or not open");
-  }
+  sendToPico(valueToSend);
 }
+
+sendToPico(valueToSend);
 
 function initializeSliderValuesForPico() {
   mode_turn = mode[0];
