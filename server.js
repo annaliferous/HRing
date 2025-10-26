@@ -77,6 +77,7 @@ server.get("/", (req, res) => {
 server.get("/save/participationId/:id", (req, res) => {
   res.send("ParticipationId was send!");
   console.log(req.params.id);
+  participation_id = req.params.id;
 });
 
 let calibrationValue;
@@ -132,18 +133,12 @@ server.listen(3000, () => {
 // ===== data input ===== //
 
 // https://damienmasson.com/tools/latin_square/
-const modeforlater = [
+const mode = [
   [/* 0: */ "up", "down", "tartarus", "olymp"],
   [/* 1: */ "down", "olymp", "up", "tartarus"],
   [/* 2: */ "olymp", "tartarus", "down", "up"],
   [/* 3: */ "tartarus", "up", "olymp", "down"],
 ];
-
-const mode = [
-  ["up", "down", "down", "up"],
-  ["down", "up", "down", "up"],
-];
-
 let participation_id = 0; //mode % participant_id
 let mode_turn = 0; //0-3
 let run = 0; //0+11
@@ -158,7 +153,7 @@ function ccd_values() {
 function choosePath(mode) {
   let valueToSend;
 
-  const currentMode = mode[0][mode_turn];
+  const currentMode = mode[participation_id][mode_turn];
   console.log(`🎯 Current mode: ${currentMode}`);
 
   switch (currentMode) {
@@ -182,9 +177,18 @@ function choosePath(mode) {
       break;
   }
   sendToPico(valueToSend);
-}
 
-sendToPico(valueToSend);
+  // Move to the next mode
+  mode_turn++;
+  if (mode_turn >= mode[participation_id].length) {
+    mode_turn = 0;
+    participation_id++;
+    if (participation_id >= mode.length) {
+      participation_id = 0;
+      console.log("Completed full mode sequence, starting again");
+    }
+  }
+}
 
 function initializeSliderValuesForPico() {
   mode_turn = mode[0];
