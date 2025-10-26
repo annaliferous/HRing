@@ -105,7 +105,7 @@ fs.appendFile(filename, content, (err) => {
 });
 
 //Pico Server Data
-server.post("/live", (req, res) => {
+/* server.post("/live", (req, res) => {
   const { value } = req.body;
 
   if (value === undefined || value === null) {
@@ -127,10 +127,10 @@ server.post("/live", (req, res) => {
     console.log(`📤 Sent to Pico: ${value}`);
     res.send("Live value sent to Pico");
   });
-});
+}); */
 
 // Error Handling for unknown Routes
-server.use((req, res) => {
+/* server.use((req, res) => {
   res.status(404).send("Route not found");
 });
 
@@ -138,7 +138,7 @@ server.use((req, res) => {
 server.use((err, req, res, next) => {
   console.error("Server error:", err);
   res.status(500).send("Internal server error");
-});
+}); */
 
 // Graceful shutdown
 process.on("SIGINT", () => {
@@ -161,11 +161,16 @@ server.listen(3000, () => {
 // ===== data input ===== //
 
 // https://damienmasson.com/tools/latin_square/
-const mode = [
+const modeforlater = [
   [/* 0: */ "up", "down", "tartarus", "olymp"],
   [/* 1: */ "down", "olymp", "up", "tartarus"],
   [/* 2: */ "olymp", "tartarus", "down", "up"],
   [/* 3: */ "tartarus", "up", "olymp", "down"],
+];
+
+const mode = [
+  ["up", "down", "down", "up"],
+  ["down", "up", "down", "up"],
 ];
 
 let participation_id = 0; //mode % participant_id
@@ -180,20 +185,40 @@ function ccd_values() {
 }
 
 function choosePath(mode) {
+  let valueToSend;
+
   switch (mode) {
     case "up":
-      realTimeCalculation();
-      // code block
+      valueToSend = realTimeCalculation();
+      console.log("⬆️ upValue:", valueToSend);
       break;
+
     case "down":
-      // code block
+      valueToSend = -realTimeCalculation(); // 👈 negated
+      console.log("⬇️ downValue:", valueToSend);
       break;
+
     case "olymp":
-      break;
     case "tartarus":
-      break;
+      console.log(`Mode ${mode} selected — no serial output.`);
+      return;
+
     default:
-    // code block
+      console.warn("⚠️ Unknown mode:", mode);
+      return;
+  }
+
+  // --- Send the value to the Pico via serial ---
+  if (port && port.isOpen) {
+    port.write(`${valueToSend}\n`, (err) => {
+      if (err) {
+        console.error("❌ Failed to send to Pico:", err);
+      } else {
+        console.log(`📤 Sent to Pico: ${valueToSend}`);
+      }
+    });
+  } else {
+    console.warn("⚠️ Serial port not available or not open");
   }
 }
 
@@ -204,6 +229,7 @@ function initializeSliderValuesForPico() {
 }
 
 function realTimeCalculation() {
+  initializeSliderValuesForPico();
   if (oldSliderValue != sliderValue) {
     actualPicoValue = min_pico_value + (sliderValue / 100) * max_pico_value;
     oldSliderValue = sliderValue;
