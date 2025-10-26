@@ -94,7 +94,7 @@ server.get("/save/main", (req, res) => {
 });
 
 // Schreibe in Datei
-const filename = `data/data_output${participationId}.txt`;
+/* const filename = `data/data_output${participationId}.txt`;
 fs.appendFile(filename, content, (err) => {
   if (err) {
     console.error("File write error:", err);
@@ -102,7 +102,7 @@ fs.appendFile(filename, content, (err) => {
   }
   console.log(`Data saved to ${filename}:`, content.trim());
   res.send(responseMessage);
-});
+}); */
 
 //Pico Server Data
 /* server.post("/live", (req, res) => {
