@@ -205,3 +205,5 @@ function realTimeCalculation() {
   }
   return sliderValue;
 }
+
+choosePath(mode);
