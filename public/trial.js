@@ -44,6 +44,11 @@ document.addEventListener("touchend", endDrag);
 // Calibration
 calibrationSlider.addEventListener("input", () => {
   calibrationOutput.textContent = calibrationSlider.value;
+  //TODO
+  let currentCalVal = participationIdInput(calibrationSlider.value);
+  const calSliderVal = url + "main/" + currentCalVal;
+  console.log(`Current CalVal "${currentCalVal}"`);
+  fetch(calSliderVal).catch((err) => console.error("❌ Fetch error:", err));
 });
 document.getElementById("calibration_send").addEventListener("click", () => {
   if (!participationIdInput.value) {
@@ -90,12 +95,6 @@ screenSlider.addEventListener("input", () => {
   const picoValue = realTimeCalculation();
   const currentMode = modeMatrix[participation_id_matrix][currentModeIndex];
 
-  // Skip sending during olymp/tartarus
-  if (currentMode === "olymp" || currentMode === "tartarus") {
-    console.log(`⛰️ Mode "${currentMode}" — no data sent`);
-    return;
-  }
-
   const endpoint = url + "main/" + picoValue;
   console.log(`📤 Mode "${currentMode}" → PicoValue: ${picoValue}`);
   fetch(endpoint).catch((err) => console.error("❌ Fetch error:", err));
@@ -138,6 +137,18 @@ function realTimeCalculation() {
 
   if (currentMode === "down") {
     actualPicoValue = max_pico_value - (actualPicoValue - min_pico_value);
+  } else if (currentMode === "olymp") {
+    if (sliderValue <= 50) {
+      min_pico_value + (sliderValue / 100) * (max_pico_value - min_pico_value);
+    } else {
+      actualPicoValue = max_pico_value - (actualPicoValue - min_pico_value);
+    }
+  } else if (currentMode === "tartarus") {
+    if (sliderValue > 50) {
+      min_pico_value + (sliderValue / 100) * (max_pico_value - min_pico_value);
+    } else {
+      actualPicoValue = max_pico_value - (actualPicoValue - min_pico_value);
+    }
   }
 
   return Math.round(actualPicoValue);
