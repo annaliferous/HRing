@@ -127,17 +127,6 @@ server.get("/save/main/:value", (req, res) => {
   res.send("Pico Value received and sent");
 });
 
-// Schreibe in Datei
-/* const filename = `data/data_output${participationId}.txt`;
-fs.appendFile(filename, content, (err) => {
-  if (err) {
-    console.error("File write error:", err);
-    return res.status(500).send("Error writing file");
-  }
-  console.log(`Data saved to ${filename}:`, content.trim());
-  res.send(responseMessage);
-}); */
-
 // Shutdown
 process.on("SIGINT", () => {
   console.log("Shutting down server...");
