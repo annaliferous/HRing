@@ -44,9 +44,9 @@ function initializeSerial() {
         console.log("✅ Serial port opened successfully");
 
         // Listener for data from Pico
-        parser.on("data", (data) => {
+        /* parser.on("data", (data) => {
           console.log(`📥 Received from Pico: ${data}`);
-        });
+        }); */
       }
     });
 
