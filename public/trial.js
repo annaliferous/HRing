@@ -111,6 +111,25 @@ const modeMatrix = [
   [/* 3: */ "tartarus", "up", "olymp", "down"],
 ];
 
+const conditionMatrix = [
+  [0, "up", 25, null],
+  [1, "up", 50, null],
+  [2, "up", 75, null],
+  [3, "up", 100, null],
+  [4, "down", 25, null],
+  [5, "down", 50, null],
+  [6, "down", 75, null],
+  [7, "down", 100, null],
+  [8, "olymp", 25, null],
+  [9, "olymp", 50, null],
+  [10, "olymp", 75, null],
+  [11, "olymp", 100, null],
+  [12, "tartarus", 25, null],
+  [13, "tartarus", 50, null],
+  [14, "tartarus", 75, null],
+  [15, "tartarus", 100, null],
+];
+
 function choosePath() {
   const currentMode = modeMatrix[participation_id_matrix][currentModeIndex];
   console.log(`🎯 Starting mode: ${currentMode}`);
@@ -155,72 +174,3 @@ function realTimeCalculation() {
 
   return Math.round(actualPicoValue);
 }
-
-// ===== Calculation of Pico Value =====
-
-/* let participation_id = 0; //mode % participant_id
-let mode_turn = 0; //0-3
-let run = 0; //0+11
-
-let min_pico_value = 0;
-let max_pico_value = 0;
-
-function ccd_values() {
-  //berechnung der ccd_values (+ calibration value)
-}
-
-function choosePath(mode) {
-  let valueToSend;
-
-  const currentMode = mode[0][mode_turn];
-
-  switch (currentMode) {
-    case "up":
-      valueToSend = realTimeCalculation();
-      console.log("⬆️ upValue:", valueToSend);
-      break;
-
-    case "down":
-      valueToSend = -realTimeCalculation();
-      console.log("⬇️ downValue:", valueToSend);
-      break;
-
-    case "olymp":
-    case "tartarus":
-      console.log(`Mode ${currentMode} selected — no serial output.`);
-      break;
-
-    default:
-      console.warn("⚠️ Unknown mode:", currentMode);
-      break;
-  }
-  screenSlider.addEventListener("input", () => {
-    let main = url + "main/" + valueToSend;
-    console.log("Sending:", picoValue);
-    fetch(main);
-  });
-  // Move to the next mode
-  mode_turn++;
-  if (mode_turn >= mode[participation_id].length) {
-    mode_turn = 0;
-    participation_id++;
-    if (participation_id >= mode.length) {
-      participation_id = 0;
-      console.log("Completed full mode sequence, starting again");
-    }
-  }
-}
-
-function initializeSliderValuesForPico() {
-  mode_turn = modeMatrix[0];
-  min_pico_value = calibration_value;
-  max_pico_value = 80 + calibrationValue;
-}
-
-function realTimeCalculation() {
-  initializeSliderValuesForPico();
-  const sliderValue = parseInt(screenSlider.value);
-  const actualPicoValue = min_pico_value + (sliderValue / 100) * max_pico_value;
-  return Math.round(actualPicoValue);
-}
- */
