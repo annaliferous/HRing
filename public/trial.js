@@ -45,10 +45,12 @@ document.addEventListener("touchend", endDrag);
 calibrationSlider.addEventListener("input", () => {
   calibrationOutput.textContent = calibrationSlider.value;
   //TODO
-  let currentCalVal = participationIdInput(calibrationSlider.value);
-  const calSliderVal = url + "main/" + currentCalVal;
+  let currentCalVal = calibrationSlider.value;
+  const sendCurrentCalVal = url + "main/" + currentCalVal;
   console.log(`Current CalVal "${currentCalVal}"`);
-  fetch(calSliderVal).catch((err) => console.error("❌ Fetch error:", err));
+  fetch(sendCurrentCalVal).catch((err) =>
+    console.error("❌ Fetch error:", err)
+  );
 });
 document.getElementById("calibration_send").addEventListener("click", () => {
   if (!participationIdInput.value) {

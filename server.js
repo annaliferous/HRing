@@ -42,6 +42,7 @@ function initializeSerial() {
         port = null;
       } else {
         console.log("✅ Serial port opened successfully");
+        resetMotors();
 
         // Listener for data from Pico
         /* parser.on("data", (data) => {
@@ -67,8 +68,13 @@ function sendToPico(value, mode) {
   const message = `${value}\n`;
   port.write(message, (err) => {
     if (err) console.error("Serial write failed:", err.message);
-    else console.log(`📤 Sent to Pico [mode: ${mode}] → ${value}`);
+    /* else console.log(`📤 Sent to Pico [mode: ${mode}] → ${value}`); */
   });
+}
+//reset Motors after every mode chnage
+function resetMotors() {
+  console.log("🔄 Resetting motors to 0...");
+  sendToPico(0, currentMode);
 }
 
 // Data Storage
@@ -87,6 +93,15 @@ function appendToFile(line) {
 // Express Routes
 server.get("/", (req, res) => {
   res.send("Express server is up and running!");
+});
+//cal Val handler
+server.get("/save/:currentCalVal", (req, res) => {
+  const currentCalVal = req.params.currentCalVal;
+  console.log(`📩 Received Cal Value: ${currentCalVal} `);
+
+  sendToPico(picoValue, "calVal");
+
+  res.send("Cal Value received and sent");
 });
 
 server.get("/save/participationId/:id", (req, res) => {
@@ -114,6 +129,7 @@ server.get("/save/mode/:mode", (req, res) => {
   console.log(`Mode changed → ${currentMode}`);
   appendToFile(`Mode changed → ${currentMode}`);
   res.send("Mode updated");
+  resetMotors();
 });
 
 // Pico value handler
