@@ -1,62 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="trial.css" />
-    <title>HRing Trial Run</title>
-  </head>
 
-  <body>
-    <!-- Calibration Screen -->
-    <section id="calibration" class="calibration">
-      <div class="container">
-        <div class="outline">
-          <label for="participation_id">Participation ID:</label>
-          <input type="text" id="participation_id" maxlength="4" size="4" />
-          <br /><br />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="trial.css" />
+  <title>HRing Trial Run</title>
+</head>
 
-          <div class="headline">
-            <p>Please click "Send" when you start to feel any pressure</p>
+<body>
+  <!-- Calibration Screen -->
+  <section id="calibration" class="calibration">
+    <div class="container">
+      <div class="outline">
+        <label for="participation_id">Participation ID:</label>
+        <input type="text" id="participation_id" maxlength="4" size="4" />
+        <br /><br />
+
+        <div class="headline">
+          <p>Please click "Send" when you start to feel any pressure</p>
+        </div>
+
+        <div class="slidecontainer">
+          <input type="range" min="0" max="100" value="0" class="slider" id="calibration_slider" />
+          <p>Value: <span id="demo">0</span></p>
+          <button class="button" id="calibration_send">Send</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!--Slider Task Screen-->
+  <section id="screen" class="screen" style="display: none">
+    <div class="container">
+      <div class="outline">
+        <div class="headline">
+          <p>Please move the circle to the end point</p>
+        </div>
+        <div class="slidecontainer">
+          <input type="range" min="0" max="100" value="0" class="slider" id="screen_slider" />
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="questionnaire" class="questionnaire" style="display: none;">
+    <!-- Canvas Section -->
+    <div class="container" id="canvas_section_container">
+      <div class="outline">
+        <div class="headline">
+          <p>Please select a fitting canvas</p>
+        </div>
+        <div class="grid-container">
+          <div id="rise" class="canvas-container">
+            <canvas class="canvas" id="riseCanvas" width="200" height="200"></canvas>
+            <button class="button" id="rise_button" onclick="buttonFunctions('rise')">
+              Select
+            </button>
           </div>
-
-          <div class="slidecontainer">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value="0"
-              class="slider"
-              id="calibration_slider"
-            />
-            <p>Value: <span id="demo">0</span></p>
-            <button class="button" id="calibration_send">Send</button>
+          <div id="fall" class="canvas-container">
+            <canvas class="canvas" id="fallCanvas" width="200" height="200"></canvas>
+            <button class="button" id="fall_button" onclick="buttonFunctions('fall')">
+              Select
+            </button>
+          </div>
+          <div id="olymp" class="canvas-container">
+            <canvas class="canvas" id="olympCanvas" width="200" height="200"></canvas>
+            <button class="button" id="olymp_button" onclick="buttonFunctions('olymp')">
+              Select
+            </button>
+          </div>
+          <div id="tartarus" class="canvas-container">
+            <canvas class="canvas" id="tartarusCanvas" width="200" height="200"></canvas>
+            <button class="button" id="tartarus" onclick="buttonFunctions('tartarus')">
+              Select
+            </button>
           </div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!--Slider Task Screen-->
-    <section id="screen" class="screen" style="display: none">
-      <div class="container">
-        <div class="outline">
-          <div class="headline">
-            <p>Please move the circle to the end point</p>
-          </div>
-          <div class="slidecontainer">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value="0"
-              class="slider"
-              id="screen_slider"
-            />
+    <!-- Intensity Section -->
+    <div class="container" id="intensity_container">
+      <div class="outline">
+        <div class="headline">
+          <p>Intensity</p>
+        </div>
+        <div class="slidecontainer">
+          <input type="range" min="0" max="100" value="0" class="slider" id="intensity_slider" />
+          <div class="slider-labels">
+            <span>0</span>
+            <span>100</span>
           </div>
         </div>
+        <button class="button" id="intensity_send">Enter</button>
+        <button class="button" id="intensity_return">Go Back</button>
       </div>
-    </section>
+    </div>
 
-    <script src="trial.js"></script>
-  </body>
+    <!-- Height Section -->
+    <div class="container" id="height_container">
+      <div class="outline">
+        <div class="headline">
+          <p>Height</p>
+        </div>
+        <div class="slidecontainer">
+          <input type="range" min="0" max="100" value="0" class="slider" id="height_slider" />
+          <div class="slider-labels">
+            <span>0</span>
+            <span>100</span>
+          </div>
+        </div>
+        <button class="button" id="height_send">Enter</button>
+        <button class="button" id="height_return">Go Back</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="trial.js"></script>
+</body>
+
 </html>

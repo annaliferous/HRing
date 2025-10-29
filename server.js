@@ -131,7 +131,14 @@ server.get("/save/mode/:mode", (req, res) => {
   res.send("Mode updated");
   resetMotors();
 });
-
+server.get("/save/intensity/:intensity", (req, res) => {
+  res.send("Intensity was send!");
+  console.log(req.params.intensity);
+});
+server.get("/save/height/:height", (req, res) => {
+  res.send("Height was send!");
+  console.log(req.params.height);
+});
 // Pico value handler
 server.get("/save/main/:value", (req, res) => {
   const picoValue = req.params.value;
