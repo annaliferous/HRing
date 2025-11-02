@@ -91,12 +91,41 @@ let calibrationValue = null;
 let currentMode = "unknown";
 let logFile = null;
 let participation_id = "default";
+let logEntryId = 0;
+
+function createLogFile() {
+  const participantFolder = path.join(
+    dataDir,
+    `participant_${participation_id}`
+  );
+  if (!fs.existsSync(participantFolder)) {
+    fs.mkdirSync(participantFolder, { recursive: true });
+  }
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  logFile = path.join(participantFolder, `data_${timestamp}.txt`);
+
+  logEntryId = 0;
+
+  // Session header
+  const header = `=== New Session Started ===
+Participant ID: ${participation_id}
+Date: ${new Date().toLocaleString()}
+====================================\n`;
+
+  fs.writeFileSync(logFile, header);
+  /* console.log(`📝 Logging data to: ${logFile}`); */
+}
 
 // Helper to write logs
 function appendToFile(line) {
   if (!logFile) return;
-  fs.appendFile(logFile, line + "\n", (err) => {
-    if (err) console.error("❌ File write error:", err.message);
+
+  logEntryId += 1;
+  const entry = `${logEntryId}. ${line}`;
+
+  fs.appendFile(logFile, entry + "\n", (err) => {
+    if (err) console.error("File write error:", err.message);
   });
 }
 
@@ -118,20 +147,24 @@ server.get("/save/participationId/:id", (req, res) => {
   res.send("ParticipationId was send!");
   console.log(req.params.id);
   participation_id = req.params.id;
+  createLogFile();
 });
 
 server.get("/save/calibrationValue/:calVal", (req, res) => {
   res.send("calibrationValue was send!");
   console.log(req.params.calVal);
   calibrationValue = req.params.calVal;
+  appendToFile(`Calibration Value: ${calibrationValue}`);
 });
 server.get("/save/startTime/:start", (req, res) => {
   res.send("startTime was send!");
   console.log(req.params.start);
+  appendToFile(`Start Time: ${req.params.start}`);
 });
 server.get("/save/stopTime/:stop", (req, res) => {
   res.send("stopTime was send!");
   console.log(req.params.stop);
+  appendToFile(`Stop Time: ${req.params.stop}`);
 });
 // Mode tracking from frontend
 server.get("/save/mode/:mode", (req, res) => {
@@ -141,17 +174,20 @@ server.get("/save/mode/:mode", (req, res) => {
   res.send("Mode updated");
   resetMotors();
 });
-server.get("/save/intensity/:canvas", (req, res) => {
-  res.send("CanvasId was send!");
-  console.log(req.params.canvas);
+server.get("/save/canvas/:selectedCanvas", (req, res) => {
+  res.send("selectedCanvas was send!");
+  console.log(req.params.selectedCanvas);
+  appendToFile(`selectedCanvas: ${req.params.selectedCanvas}`);
 });
 server.get("/save/intensity/:intensity", (req, res) => {
   res.send("Intensity was send!");
   console.log(req.params.intensity);
+  appendToFile(`Intensity: ${req.params.intensity}`);
 });
 server.get("/save/height/:height", (req, res) => {
   res.send("Height was send!");
   console.log(req.params.height);
+  appendToFile(`Height: ${req.params.height}`);
 });
 // Pico value handler
 server.get("/save/main/:value", (req, res) => {
