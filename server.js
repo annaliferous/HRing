@@ -91,8 +91,7 @@ let calibrationValue = null;
 let currentMode = "unknown";
 let logFile = null;
 let participation_id = "default";
-let logEntryId = 0;
-
+/* 
 function createLogFile() {
   const participantFolder = path.join(
     dataDir,
@@ -105,40 +104,35 @@ function createLogFile() {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   logFile = path.join(participantFolder, `data_${timestamp}.txt`);
 
-  logEntryId = 0;
-
   // Session header
   const header = `=== New Session Started ===
 Participant ID: ${participation_id}
-Date: ${new Date().toLocaleString()}
 ====================================\n`;
 
-  fs.writeFileSync(logFile, header);
-  /* console.log(`📝 Logging data to: ${logFile}`); */
-}
+  fs.writeFile(logFile, header, (err) => {
+    if (err) console.error("Failed to create log file:", err);
+  });
+}*/
 
 // Helper to write logs
-function appendToFile(line) {
-  if (!logFile) return;
+/* function appendToFile(line) {
+  if (logFile) return;
 
-  logEntryId += 1;
-  const entry = `${logEntryId}. ${line}`;
-
-  fs.appendFile(logFile, entry + "\n", (err) => {
+  fs.appendFile(logFile + "\n", (err) => {
     if (err) console.error("File write error:", err.message);
   });
-}
+} */
 
 // Express Routes
 server.get("/", (req, res) => {
   res.send("Express server is up and running!");
 });
 //cal Val handler
-server.get("/save/:currentCalVal", (req, res) => {
+server.get("save/main/:currentCalVal", (req, res) => {
   const currentCalVal = req.params.currentCalVal;
   console.log(`📩 Received Cal Value: ${currentCalVal} `);
 
-  sendToPico(picoValue, "calVal");
+  sendToPico(currentCalVal, "calVal");
 
   res.send("Cal Value received and sent");
 });
@@ -147,54 +141,53 @@ server.get("/save/participationId/:id", (req, res) => {
   res.send("ParticipationId was send!");
   console.log(req.params.id);
   participation_id = req.params.id;
-  createLogFile();
+  /* createLogFile(); */
 });
 
 server.get("/save/calibrationValue/:calVal", (req, res) => {
   res.send("calibrationValue was send!");
   console.log(req.params.calVal);
   calibrationValue = req.params.calVal;
-  appendToFile(`Calibration Value: ${calibrationValue}`);
+  a; /* ppendToFile(`Calibration Value: ${calibrationValue}`); */
 });
 server.get("/save/startTime/:start", (req, res) => {
   res.send("startTime was send!");
   console.log(req.params.start);
-  appendToFile(`Start Time: ${req.params.start}`);
+  /* appendToFile(`Start Time: ${req.params.start}`); */
 });
 server.get("/save/stopTime/:stop", (req, res) => {
   res.send("stopTime was send!");
   console.log(req.params.stop);
-  appendToFile(`Stop Time: ${req.params.stop}`);
+  /* appendToFile(`Stop Time: ${req.params.stop}`); */
 });
 // Mode tracking from frontend
 server.get("/save/mode/:mode", (req, res) => {
   currentMode = req.params.mode;
   console.log(`Mode changed → ${currentMode}`);
-  appendToFile(`Mode changed → ${currentMode}`);
   res.send("Mode updated");
+  /* appendToFile(`Mode changed → ${currentMode}`); */
   resetMotors();
 });
 server.get("/save/canvas/:selectedCanvas", (req, res) => {
   res.send("selectedCanvas was send!");
   console.log(req.params.selectedCanvas);
-  appendToFile(`selectedCanvas: ${req.params.selectedCanvas}`);
+  /* appendToFile(`selectedCanvas: ${req.params.selectedCanvas}`); */
 });
 server.get("/save/intensity/:intensity", (req, res) => {
   res.send("Intensity was send!");
   console.log(req.params.intensity);
-  appendToFile(`Intensity: ${req.params.intensity}`);
+  /* appendToFile(`Intensity: ${req.params.intensity}`); */
 });
 server.get("/save/height/:height", (req, res) => {
   res.send("Height was send!");
   console.log(req.params.height);
-  appendToFile(`Height: ${req.params.height}`);
+  /* appendToFile(`Height: ${req.params.height}`); */
 });
 // Pico value handler
 server.get("/save/main/:value", (req, res) => {
   const picoValue = req.params.value;
   console.log(`📩 Received Pico Value: ${picoValue} [mode: ${currentMode}]`);
 
-  appendToFile(`[mode: ${currentMode}] ${picoValue}`);
   sendToPico(picoValue, currentMode);
 
   res.send("Pico Value received and sent");

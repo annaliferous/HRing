@@ -1,2 +1,0 @@
-participation_id:14
-calibrationValue:15

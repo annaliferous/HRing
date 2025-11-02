@@ -1,0 +1,3 @@
+=== New Session Started ===
+Participant ID: 1
+====================================
