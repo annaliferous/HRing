@@ -18,6 +18,15 @@ if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
+// Create Participant Folder
+/* const participantFolder = path.join(
+  __dirname,
+  `data/participant_${participation_id}`
+);
+if (!fs.existsSync(participantFolder)) {
+  fs.mkdirSync(participantFolder, { recursive: true });
+} */
+
 let port;
 let parser;
 
@@ -81,6 +90,7 @@ function resetMotors() {
 let calibrationValue = null;
 let currentMode = "unknown";
 let logFile = null;
+let participation_id = "default";
 
 // Helper to write logs
 function appendToFile(line) {
@@ -130,6 +140,10 @@ server.get("/save/mode/:mode", (req, res) => {
   appendToFile(`Mode changed → ${currentMode}`);
   res.send("Mode updated");
   resetMotors();
+});
+server.get("/save/intensity/:canvas", (req, res) => {
+  res.send("CanvasId was send!");
+  console.log(req.params.canvas);
 });
 server.get("/save/intensity/:intensity", (req, res) => {
   res.send("Intensity was send!");

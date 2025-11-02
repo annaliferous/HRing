@@ -14,6 +14,7 @@ let startTime, stopTime;
 let calibrationValue = 0;
 let participation_id = 0;
 let participation_id_matrix = 0;
+let shuffledConditionMatrix = [];
 let currentModeIndex = 0;
 
 // Slider Drag for touch (no lagging)
@@ -60,9 +61,12 @@ document.getElementById("calibration_send").addEventListener("click", () => {
   }
   calibrationValue = parseInt(calibrationSlider.value);
   participation_id = parseInt(participationIdInput.value);
-  participation_id_matrix =
+  /* participation_id_matrix =
     parseInt(participationIdInput.value) % modeMatrix.length;
-
+    
+ */
+  // Setup condition matrix for this participant
+  setupConditionMatrix(participation_id);
   // Send calibrationValue + participantId
   fetch(url + "participationId/" + participation_id);
   fetch(url + "calibrationValue/" + calibrationValue);
@@ -86,6 +90,8 @@ screenSlider.addEventListener("mouseup", () => {
 
     setTimeout(() => {
       screenSlider.value = 0;
+      intensity_slider.value = 0;
+      height_slider.value = 0;
       nextMode();
       screenSection.style.display = "none";
       questionnaireSection.style.display = "block";
@@ -98,7 +104,11 @@ screenSlider.addEventListener("mouseup", () => {
 
 screenSlider.addEventListener("input", () => {
   const picoValue = realTimeCalculation();
-  const currentMode = modeMatrix[participation_id_matrix][currentModeIndex];
+  /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
+  const currentCondition = shuffledConditionMatrix[currentModeIndex];
+  const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
+  const intensity = currentCondition[2]; // 25, 50, 75, 100
+  const maxValue = currentCondition[3]; // 100
 
   const endpoint = url + "main/" + picoValue;
   console.log(`📤 Mode "${currentMode}" → PicoValue: ${picoValue}`);
@@ -114,34 +124,57 @@ const modeMatrix = [
   [/* 3: */ "tartarus", "up", "olymp", "down"],
 ];
 
+//Random Seed creation
+function seededRandom(seed) {
+  let x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+function shuffleArray(array, seed) {
+  const arr = array.slice(); // copy
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(seededRandom(seed + i) * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 const conditionMatrix = [
-  [0, "up", 25, null],
-  [1, "up", 50, null],
-  [2, "up", 75, null],
-  [3, "up", 100, null],
-  [4, "down", 25, null],
-  [5, "down", 50, null],
-  [6, "down", 75, null],
-  [7, "down", 100, null],
-  [8, "olymp", 25, null],
-  [9, "olymp", 50, null],
-  [10, "olymp", 75, null],
-  [11, "olymp", 100, null],
-  [12, "tartarus", 25, null],
-  [13, "tartarus", 50, null],
-  [14, "tartarus", 75, null],
-  [15, "tartarus", 100, null],
+  [0, "up", 25, 100],
+  [1, "up", 50, 100],
+  [2, "up", 75, 100],
+  [3, "up", 100, 100],
+  [4, "down", 25, 100],
+  [5, "down", 50, 100],
+  [6, "down", 75, 100],
+  [7, "down", 100, 100],
+  [8, "olymp", 25, 100],
+  [9, "olymp", 50, 100],
+  [10, "olymp", 75, 100],
+  [11, "olymp", 100, 100],
+  [12, "tartarus", 25, 100],
+  [13, "tartarus", 50, 100],
+  [14, "tartarus", 75, 100],
+  [15, "tartarus", 100, 100],
 ];
 
+function setupConditionMatrix(participantId) {
+  /* participation_id_matrix = participantId; */
+  shuffledConditionMatrix = shuffleArray(conditionMatrix, participantId);
+}
+
 function choosePath() {
-  const currentMode = modeMatrix[participation_id_matrix][currentModeIndex];
+  /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
+  const currentCondition = shuffledConditionMatrix[currentModeIndex];
+  const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
+  const intensity = currentCondition[2]; // 25, 50, 75, 100
+  const maxValue = currentCondition[3]; // 100
   console.log(`🎯 Starting mode: ${currentMode}`);
   fetch(url + "mode/" + currentMode);
 }
 
 function nextMode() {
   currentModeIndex++;
-  if (currentModeIndex >= modeMatrix[participation_id_matrix].length) {
+  if (currentModeIndex >= shuffledConditionMatrix.length) {
     currentModeIndex = 0;
     console.log("🔁 Restarting mode cycle");
   }
@@ -152,24 +185,36 @@ function nextMode() {
 function realTimeCalculation() {
   const sliderValue = parseInt(screenSlider.value);
   const min_pico_value = calibrationValue;
-  const max_pico_value = 80 + calibrationValue;
+  /* const max_pico_value = 80 + calibrationValue; */
+  const currentCondition = shuffledConditionMatrix[currentModeIndex];
+  const currentIndex = currentCondition[0];
+  const max_pico_value = currentCondition[3] + calibrationValue;
 
   let actualPicoValue =
     min_pico_value + (sliderValue / 100) * (max_pico_value - min_pico_value);
 
-  const currentMode = modeMatrix[participation_id_matrix][currentModeIndex];
+  /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
+  /* const currentMode = shuffledConditionMatrix[currentModeIndex][1]; */
+  const currentMode = currentCondition[1]; // "up", "down", "olymp", or "tartarus"
+  console.log(
+    `🧮 Index: ${currentIndex} | Mode: ${currentMode} | Max Pico: ${max_pico_value} | Min Pico: ${min_pico_value}`
+  );
 
   if (currentMode === "down") {
     actualPicoValue = max_pico_value - (actualPicoValue - min_pico_value);
   } else if (currentMode === "olymp") {
     if (sliderValue <= 50) {
-      min_pico_value + (sliderValue / 100) * (max_pico_value - min_pico_value);
+      actualPicoValue =
+        min_pico_value +
+        (sliderValue / 100) * (max_pico_value - min_pico_value);
     } else {
       actualPicoValue = max_pico_value - (actualPicoValue - min_pico_value);
     }
   } else if (currentMode === "tartarus") {
     if (sliderValue > 50) {
-      min_pico_value + (sliderValue / 100) * (max_pico_value - min_pico_value);
+      actualPicoValue =
+        min_pico_value +
+        (sliderValue / 100) * (max_pico_value - min_pico_value);
     } else {
       actualPicoValue = max_pico_value - (actualPicoValue - min_pico_value);
     }
@@ -274,7 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-let selectedCanvas = ""; // Variable to track the selected canvas
+let selectedCanvas = null; // Variable to track the selected canvas
 
 // Button Functions
 // Enter Buttons
@@ -292,10 +337,11 @@ const height_return = document.getElementById("height_return");
 const intensity_container = document.getElementById("intensity_container");
 const height_container = document.getElementById("height_container");
 
-function buttonFunctions() {
+function buttonFunctions(canvas) {
   intensity_container.scrollIntoView({ behavior: "smooth" });
+  selectedCanvas = canvas;
+  console.log(selectedCanvas);
 }
-buttonFunctions();
 
 intensity_send.addEventListener("click", () => {
   height_container.scrollIntoView({ behavior: "smooth" });
@@ -315,6 +361,7 @@ const height_slider = document.getElementById("height_slider");
 height_send.addEventListener("click", () => {
   let intensity = intensity_slider.value;
   let height = height_slider.value;
+  fetch(url + "canvas/" + selectedCanvas);
   fetch(url + "intensity/" + intensity);
   fetch(url + "height/" + height);
 
