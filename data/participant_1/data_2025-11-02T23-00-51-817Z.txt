@@ -1,5 +1,0 @@
-=== New Session Started ===
-Participant ID: 1
-====================================
-1. Calibration Value: 8
-2. Mode changed → up

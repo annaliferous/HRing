@@ -1,2 +1,0 @@
-1. Calibration Value: 10
-2. Mode changed → up
