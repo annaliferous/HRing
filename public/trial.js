@@ -165,6 +165,7 @@ function setupConditionMatrix(participantId) {
 function choosePath() {
   /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
+  fetch(url + "array/" + currentCondition);
   const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
   const intensity = currentCondition[2]; // 25, 50, 75, 100
   const maxValue = currentCondition[3]; // 100

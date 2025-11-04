@@ -83,9 +83,9 @@ let currentMode = "unknown";
 let logFile = null;
 let participation_id = "default";
 
-function dataArray() {
-  data = [];
-}
+// Data Storage
+let dataStorage = [];
+let curentSession = {};
 
 // Helper to write logs
 function appendToFile(line) {
@@ -129,7 +129,10 @@ server.get("/save/stopTime/:stop", (req, res) => {
   res.send("stopTime was send!");
   console.log(req.params.stop);
 });
-// Mode tracking from frontend
+server.get("/save/array/:array", (req, res) => {
+  res.send("ConditionArray was send!");
+  console.log(req.params.array);
+});
 server.get("/save/mode/:mode", (req, res) => {
   currentMode = req.params.mode;
   console.log(`Mode changed → ${currentMode}`);
