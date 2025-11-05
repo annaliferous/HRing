@@ -95,31 +95,8 @@ let currentSession = {
   height: null,
 };
 
-function initializeLogFile() {
-  const timestamp = new Date().toISOString().replace(/:/g, "-").split(".")[0];
-  const filename = `participant_${participation_id}_${timestamp}.txt`;
-  logFile = path.join(dataDir, filename);
-
-  // Write header
-  const header =
-    "Mode\tStartTime\tStopTime\tArray\tCanvas\tIntensity\tHeight\n";
-  fs.writeFileSync(logFile, header);
-  console.log(`📝 Log file created: ${filename}`);
-}
-
 // Helper to write logs
-function appendToFile(array) {
-  if (!logFile) {
-    console.error("❌ No log file initialized");
-    return;
-  }
-
-  const session = currentSession;
-  const line = `${session.mode}\t${session.startTime}\t${session.stopTime}\t${session.array}\t${session.canvas}\t${session.intensity}\t${session.height}\n`;
-
-  fs.appendFileSync(logFile, line);
-  console.log(`✅ Session written to file: ${logFile}`);
-}
+function addToFile(array) {}
 
 function safeCurrentSession() {
   if (currentSession.mode !== null) {
@@ -136,7 +113,7 @@ function safeCurrentSession() {
     console.log(`💾 Session saved:`, sessionArray);
     console.log(`📊 Total sessions: ${dataStorage.length}`);
 
-    appendToFile();
+    addToFile(sessionArray);
   }
 
   // Reset current session
@@ -169,7 +146,6 @@ server.get("/save/participationId/:id", (req, res) => {
   res.send("ParticipationId was send!");
   console.log(req.params.id);
   participation_id = req.params.id;
-  initializeLogFile();
 });
 
 server.get("/save/calibrationValue/:calVal", (req, res) => {
