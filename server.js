@@ -95,6 +95,45 @@ let currentSession = {
   height: null,
 };
 
+function initializeLogFile() {
+  const timestamp = new Date().toISOString().replace(/:/g, "-").split(".")[0];
+  const filename = `participant_${participation_id}_${timestamp}.txt`;
+  logFile = path.join(dataDir, filename);
+
+  // Write header
+  const header =
+    "Mode\tStartTime\tStopTime\tArray\tCanvas\tIntensity\tHeight\n";
+  fs.writeFileSync(logFile, header);
+  console.log(`📝 Log file created: ${filename}`);
+}
+
+// Helper to write logs
+function appendToFile(line) {
+  if (dataStorage.length === 0) {
+    console.log("⚠️ No data to save");
+    return;
+  }
+
+  // Create new log file if it doesn't exist
+  if (!logFile) {
+    initializeLogFile();
+  }
+
+  // Prepare data to write
+  const lines = dataStorage
+    .map((session) => {
+      return session.join("\t");
+    })
+    .join("\n");
+
+  // Write all data (overwrite to avoid duplicates)
+  const header =
+    "Mode\tStartTime\tStopTime\tArray\tCanvas\tIntensity\tHeight\n";
+  fs.writeFileSync(logFile, header + lines + "\n");
+
+  console.log(`💾 All sessions saved to file (${dataStorage.length} sessions)`);
+}
+
 function safeCurrentSession() {
   if (currentSession.mode !== null) {
     const sessionArray = [
@@ -123,15 +162,6 @@ function safeCurrentSession() {
     intensity: null,
     height: null,
   };
-}
-
-// Helper to write logs
-function appendToFile(line) {
-  if (!logFile) return;
-
-  fs.appendFile(logFile, line + "\n", (err) => {
-    if (err) console.error("File write error:", err.message);
-  });
 }
 
 // Express Routes
