@@ -54,28 +54,47 @@ calibrationSlider.addEventListener("input", () => {
     console.error("❌ Fetch error:", err)
   );
 });
-document.getElementById("calibration_send").addEventListener("click", () => {
-  if (!participationIdInput.value) {
-    alert("Please enter a Participation ID!");
-    return;
-  }
-  calibrationValue = parseInt(calibrationSlider.value);
-  participation_id = parseInt(participationIdInput.value);
-  /* participation_id_matrix =
+document
+  .getElementById("calibration_send")
+  .addEventListener("click", async () => {
+    if (!participationIdInput.value) {
+      alert("Please enter a Participation ID!");
+      return;
+    }
+    calibrationValue = parseInt(calibrationSlider.value);
+    participation_id = parseInt(participationIdInput.value);
+    /* participation_id_matrix =
     parseInt(participationIdInput.value) % modeMatrix.length;
     
  */
-  // Setup condition matrix for this participant
-  setupConditionMatrix(participation_id);
-  // Send calibrationValue + participantId
-  fetch(url + "participationId/" + participation_id);
+    // Setup condition matrix for this participant
+    setupConditionMatrix(participation_id);
+    // Send calibrationValue + participantId
+    /*   fetch(url + "participationId/" + participation_id);
   fetch(url + "calibrationValue/" + calibrationValue);
 
   choosePath();
 
   calibrationSection.style.display = "none";
-  screenSection.style.display = "block";
-});
+  screenSection.style.display = "block"; */
+    try {
+      // Wait for all initialization fetches to complete
+      await fetch(url + "participationId/" + participation_id);
+      await fetch(url + "calibrationValue/" + calibrationValue);
+
+      // Now start the first mode
+      choosePath();
+
+      // Switch screens only after everything is set up
+      calibrationSection.style.display = "none";
+      screenSection.style.display = "block";
+
+      console.log("✅ Calibration complete, starting experiment");
+    } catch (err) {
+      console.error("❌ Setup failed:", err);
+      alert("Setup failed. Please try again.");
+    }
+  });
 
 // Screen Slider
 screenSlider.addEventListener("mousedown", () => {
@@ -176,6 +195,8 @@ function choosePath() {
 function nextMode() {
   currentModeIndex++;
   if (currentModeIndex >= shuffledConditionMatrix.length) {
+    alert("🎉 Experiment completed! Thank you for participating.");
+    console.log("✅ All conditions finished");
     currentModeIndex = 0;
     console.log("🔁 Restarting mode cycle");
   }
