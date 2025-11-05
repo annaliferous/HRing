@@ -108,30 +108,17 @@ function initializeLogFile() {
 }
 
 // Helper to write logs
-function appendToFile(line) {
-  if (dataStorage.length === 0) {
-    console.log("⚠️ No data to save");
+function appendToFile(array) {
+  if (!logFile) {
+    console.error("❌ No log file initialized");
     return;
   }
 
-  // Create new log file if it doesn't exist
-  if (!logFile) {
-    initializeLogFile();
-  }
+  const session = currentSession;
+  const line = `${session.mode}\t${session.startTime}\t${session.stopTime}\t${session.array}\t${session.canvas}\t${session.intensity}\t${session.height}\n`;
 
-  // Prepare data to write
-  const lines = dataStorage
-    .map((session) => {
-      return session.join("\t");
-    })
-    .join("\n");
-
-  // Write all data (overwrite to avoid duplicates)
-  const header =
-    "Mode\tStartTime\tStopTime\tArray\tCanvas\tIntensity\tHeight\n";
-  fs.writeFileSync(logFile, header + lines + "\n");
-
-  console.log(`💾 All sessions saved to file (${dataStorage.length} sessions)`);
+  fs.appendFileSync(logFile, line);
+  console.log(`✅ Session written to file: ${logFile}`);
 }
 
 function safeCurrentSession() {
@@ -182,6 +169,7 @@ server.get("/save/participationId/:id", (req, res) => {
   res.send("ParticipationId was send!");
   console.log(req.params.id);
   participation_id = req.params.id;
+  initializeLogFile();
 });
 
 server.get("/save/calibrationValue/:calVal", (req, res) => {
