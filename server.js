@@ -156,7 +156,7 @@ server.get("/", (req, res) => {
   res.send("Express server is up and running!");
 });
 //cal Val handler
-server.get("save/calibration/:currentCalVal", (req, res) => {
+server.get("save/main/:currentCalVal", (req, res) => {
   const currentCalVal = req.params.currentCalVal;
   console.log(`📩 Received Cal Value: ${currentCalVal} `);
 
@@ -166,19 +166,10 @@ server.get("save/calibration/:currentCalVal", (req, res) => {
 });
 
 server.get("/save/participationId/:id", (req, res) => {
-  try {
-    participation_id = req.params.id;
-    console.log(`Participation ID: ${participation_id}`);
-
-    if (!logFile) {
-      initializeLogFile();
-    }
-
-    res.status(200).send("ParticipationId received!");
-  } catch (err) {
-    console.error("Error setting participation ID:", err);
-    res.status(500).send("Error setting participation ID");
-  }
+  res.send("ParticipationId was send!");
+  console.log(req.params.id);
+  participation_id = req.params.id;
+  initializeLogFile();
 });
 
 server.get("/save/calibrationValue/:calVal", (req, res) => {
@@ -203,9 +194,7 @@ server.get("/save/array/:array", (req, res) => {
 });
 server.get("/save/mode/:mode", (req, res) => {
   const newMode = req.params.mode;
-  if (currentMode !== "unknown" && currentMode !== newMode) {
-    safeCurrentSession();
-  }
+  safeCurrentSession();
   currentMode = newMode;
   currentSession.mode = newMode;
   console.log(`Mode changed → ${currentMode}`);

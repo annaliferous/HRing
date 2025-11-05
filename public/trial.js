@@ -48,53 +48,34 @@ calibrationSlider.addEventListener("input", () => {
   calibrationOutput.textContent = calibrationSlider.value;
   //TODO
   let currentCalVal = calibrationSlider.value;
-  let sendCurrentCalVal = url + "calibration/" + currentCalVal;
+  let sendCurrentCalVal = url + "main/" + currentCalVal;
   console.log(`Current CalVal "${currentCalVal}"`);
   fetch(sendCurrentCalVal).catch((err) =>
     console.error("❌ Fetch error:", err)
   );
 });
-document
-  .getElementById("calibration_send")
-  .addEventListener("click", async () => {
-    if (!participationIdInput.value) {
-      alert("Please enter a Participation ID!");
-      return;
-    }
-    calibrationValue = parseInt(calibrationSlider.value);
-    participation_id = parseInt(participationIdInput.value);
-    /* participation_id_matrix =
+document.getElementById("calibration_send").addEventListener("click", () => {
+  if (!participationIdInput.value) {
+    alert("Please enter a Participation ID!");
+    return;
+  }
+  calibrationValue = parseInt(calibrationSlider.value);
+  participation_id = parseInt(participationIdInput.value);
+  /* participation_id_matrix =
     parseInt(participationIdInput.value) % modeMatrix.length;
     
  */
-    // Setup condition matrix for this participant
-    setupConditionMatrix(participation_id);
-    // Send calibrationValue + participantId
-    /*   fetch(url + "participationId/" + participation_id);
+  // Setup condition matrix for this participant
+  setupConditionMatrix(participation_id);
+  // Send calibrationValue + participantId
+  fetch(url + "participationId/" + participation_id);
   fetch(url + "calibrationValue/" + calibrationValue);
 
   choosePath();
 
   calibrationSection.style.display = "none";
-  screenSection.style.display = "block"; */
-    try {
-      // Wait for all initialization fetches to complete
-      await fetch(url + "participationId/" + participation_id);
-      await fetch(url + "calibrationValue/" + calibrationValue);
-
-      // Now start the first mode
-      choosePath();
-
-      // Switch screens only after everything is set up
-      calibrationSection.style.display = "none";
-      screenSection.style.display = "block";
-
-      console.log("✅ Calibration complete, starting experiment");
-    } catch (err) {
-      console.error("❌ Setup failed:", err);
-      alert("Setup failed. Please try again.");
-    }
-  });
+  screenSection.style.display = "block";
+});
 
 // Screen Slider
 screenSlider.addEventListener("mousedown", () => {
@@ -181,24 +162,20 @@ function setupConditionMatrix(participantId) {
   shuffledConditionMatrix = shuffleArray(conditionMatrix, participantId);
 }
 
-async function choosePath() {
+function choosePath() {
+  /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
-
-  try {
-    await fetch(url + "array/" + currentCondition);
-
-    const currentMode = currentCondition[1];
-    console.log(`Starting mode: ${currentMode}`);
-    await fetch(url + "mode/" + currentMode);
-  } catch (err) {
-    console.error("Error setting up mode:", err);
-  }
+  fetch(url + "array/" + currentCondition);
+  const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
+  const intensity = currentCondition[2]; // 25, 50, 75, 100
+  const maxValue = currentCondition[3]; // 100
+  console.log(`🎯 Starting mode: ${currentMode}`);
+  fetch(url + "mode/" + currentMode);
 }
+
 function nextMode() {
   currentModeIndex++;
   if (currentModeIndex >= shuffledConditionMatrix.length) {
-    alert("🎉 Experiment completed! Thank you for participating.");
-    console.log("✅ All conditions finished");
     currentModeIndex = 0;
     console.log("🔁 Restarting mode cycle");
   }
