@@ -181,15 +181,25 @@ function setupConditionMatrix(participantId) {
   shuffledConditionMatrix = shuffleArray(conditionMatrix, participantId);
 }
 
-function choosePath() {
+async function choosePath() {
   /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
-  fetch(url + "array/" + currentCondition);
+  /* fetch(url + "array/" + currentCondition);
   const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
-  const intensity = currentCondition[2]; // 25, 50, 75, 100
-  const maxValue = currentCondition[3]; // 100
   console.log(`🎯 Starting mode: ${currentMode}`);
-  fetch(url + "mode/" + currentMode);
+  fetch(url + "mode/" + currentMode); */
+  try {
+    await fetch(url + "array/" + currentCondition);
+
+    const currentMode = currentCondition[1];
+    const intensity = currentCondition[2];
+    const maxValue = currentCondition[3];
+
+    console.log(`🎯 Starting mode: ${currentMode}`);
+    await fetch(url + "mode/" + currentMode);
+  } catch (err) {
+    console.error("❌ Error setting up mode:", err);
+  }
 }
 
 function nextMode() {

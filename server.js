@@ -166,10 +166,18 @@ server.get("save/main/:currentCalVal", (req, res) => {
 });
 
 server.get("/save/participationId/:id", (req, res) => {
-  res.send("ParticipationId was send!");
-  console.log(req.params.id);
-  participation_id = req.params.id;
-  initializeLogFile();
+  try {
+    participation_id = req.params.id;
+    console.log(`Participation ID: ${participation_id}`);
+
+    // Initialize log file when we get the participant ID
+    initializeLogFile();
+
+    res.status(200).send("ParticipationId received!");
+  } catch (err) {
+    console.error("Error setting participation ID:", err);
+    res.status(500).send("Error setting participation ID");
+  }
 });
 
 server.get("/save/calibrationValue/:calVal", (req, res) => {
