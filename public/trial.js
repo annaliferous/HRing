@@ -44,11 +44,11 @@ document.addEventListener("touchmove", drag);
 document.addEventListener("touchend", endDrag);
 
 // Calibration
-/* calibrationSlider.addEventListener("input", () => {
+calibrationSlider.addEventListener("input", () => {
   calibrationOutput.textContent = calibrationSlider.value;
   //TODO
   let currentCalVal = calibrationSlider.value;
-  let sendCurrentCalVal = url + "main/" + currentCalVal;
+  let sendCurrentCalVal = url + "calibration/" + currentCalVal;
   console.log(`Current CalVal "${currentCalVal}"`);
   fetch(sendCurrentCalVal).catch((err) =>
     console.error("❌ Fetch error:", err)
@@ -67,17 +67,17 @@ document
     parseInt(participationIdInput.value) % modeMatrix.length;
     
  */
-// Setup condition matrix for this participant
-/* setupConditionMatrix(participation_id); */
-// Send calibrationValue + participantId
-/*   fetch(url + "participationId/" + participation_id);
+    // Setup condition matrix for this participant
+    setupConditionMatrix(participation_id);
+    // Send calibrationValue + participantId
+    /*   fetch(url + "participationId/" + participation_id);
   fetch(url + "calibrationValue/" + calibrationValue);
 
   choosePath();
 
   calibrationSection.style.display = "none";
   screenSection.style.display = "block"; */
-/*  try {
+    try {
       // Wait for all initialization fetches to complete
       await fetch(url + "participationId/" + participation_id);
       await fetch(url + "calibrationValue/" + calibrationValue);
@@ -94,53 +94,8 @@ document
       console.error("❌ Setup failed:", err);
       alert("Setup failed. Please try again.");
     }
-  }); */
-document
-  .getElementById("calibration_send")
-  .addEventListener("click", async () => {
-    console.log("🔵 STEP 1: Calibration send button clicked");
-
-    if (!participationIdInput.value) {
-      alert("Please enter a Participation ID!");
-      return;
-    }
-
-    calibrationValue = parseInt(calibrationSlider.value);
-    participation_id = parseInt(participationIdInput.value);
-
-    console.log("🔵 STEP 2: Values captured", {
-      calibrationValue,
-      participation_id,
-    });
-
-    // Setup condition matrix for this participant
-    setupConditionMatrix(participation_id);
-    console.log("🔵 STEP 3: Condition matrix setup complete");
-
-    try {
-      console.log("🔵 STEP 4: Sending participation ID...");
-      await fetch(url + "participationId/" + participation_id);
-      console.log("🔵 STEP 5: Participation ID sent");
-
-      console.log("🔵 STEP 6: Sending calibration value...");
-      await fetch(url + "calibrationValue/" + calibrationValue);
-      console.log("🔵 STEP 7: Calibration value sent");
-
-      console.log("🔵 STEP 8: Calling choosePath...");
-      await choosePath();
-      console.log("🔵 STEP 9: choosePath complete");
-
-      console.log("🔵 STEP 10: Switching screens...");
-      calibrationSection.style.display = "none";
-      screenSection.style.display = "block";
-      console.log(
-        "🔵 STEP 11: Screens switched - calibration hidden, screen visible"
-      );
-    } catch (err) {
-      console.error("❌ Setup failed:", err);
-      alert("Setup failed. Please try again.");
-    }
   });
+
 // Screen Slider
 screenSlider.addEventListener("mousedown", () => {
   startTime = Date.now();
@@ -227,26 +182,18 @@ function setupConditionMatrix(participantId) {
 }
 
 async function choosePath() {
-  /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
-  /* fetch(url + "array/" + currentCondition);
-  const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
-  console.log(`🎯 Starting mode: ${currentMode}`);
-  fetch(url + "mode/" + currentMode); */
+
   try {
     await fetch(url + "array/" + currentCondition);
 
     const currentMode = currentCondition[1];
-    const intensity = currentCondition[2];
-    const maxValue = currentCondition[3];
-
-    console.log(`🎯 Starting mode: ${currentMode}`);
+    console.log(`Starting mode: ${currentMode}`);
     await fetch(url + "mode/" + currentMode);
   } catch (err) {
-    console.error("❌ Error setting up mode:", err);
+    console.error("Error setting up mode:", err);
   }
 }
-
 function nextMode() {
   currentModeIndex++;
   if (currentModeIndex >= shuffledConditionMatrix.length) {
