@@ -85,7 +85,45 @@ let participation_id = "default";
 
 // Data Storage
 let dataStorage = [];
-let curentSession = {};
+let currentSession = {
+  mode: null,
+  startTime: null,
+  stopTime: null,
+  array: null,
+  canvas: null,
+  intensity: null,
+  height: null,
+};
+
+function safeCurrentSession() {
+  if (currentSession.mode !== null) {
+    const sessionArray = [
+      currentSession.mode,
+      currentSession.startTime,
+      currentSession.stopTime,
+      currentSession.array,
+      currentSession.canvas,
+      currentSession.intensity,
+      currentSession.height,
+    ];
+    dataStorage.push(sessionArray);
+    console.log(`💾 Session saved:`, sessionArray);
+    console.log(`📊 Total sessions: ${dataStorage.length}`);
+
+    appendToFile();
+  }
+
+  // Reset current session
+  currentSession = {
+    mode: null,
+    startTime: null,
+    stopTime: null,
+    array: null,
+    canvas: null,
+    intensity: null,
+    height: null,
+  };
+}
 
 // Helper to write logs
 function appendToFile(line) {
@@ -124,17 +162,23 @@ server.get("/save/calibrationValue/:calVal", (req, res) => {
 server.get("/save/startTime/:start", (req, res) => {
   res.send("startTime was send!");
   console.log(req.params.start);
+  currentSession.startTime = req.params.start;
 });
 server.get("/save/stopTime/:stop", (req, res) => {
   res.send("stopTime was send!");
   console.log(req.params.stop);
+  currentSession.stopTime = req.params.stop;
 });
 server.get("/save/array/:array", (req, res) => {
   res.send("ConditionArray was send!");
   console.log(req.params.array);
+  currentSession.array = req.params.array;
 });
 server.get("/save/mode/:mode", (req, res) => {
-  currentMode = req.params.mode;
+  const newMode = req.params.mode;
+  safeCurrentSession();
+  currentMode = newMode;
+  currentSession.mode = newMode;
   console.log(`Mode changed → ${currentMode}`);
   res.send("Mode updated");
   resetMotors();
@@ -142,13 +186,16 @@ server.get("/save/mode/:mode", (req, res) => {
 server.get("/save/canvas/:selectedCanvas", (req, res) => {
   res.send("selectedCanvas was send!");
   console.log(req.params.selectedCanvas);
+  currentSession.canvas = req.params.selectedCanvas;
 });
 server.get("/save/intensity/:intensity", (req, res) => {
   res.send("Intensity was send!");
+  currentSession.intensity = req.params.intensity;
   console.log(req.params.intensity);
 });
 server.get("/save/height/:height", (req, res) => {
   res.send("Height was send!");
+  currentSession.height = req.params.height;
   console.log(req.params.height);
 });
 // Pico value handler
@@ -164,6 +211,7 @@ server.get("/save/main/:value", (req, res) => {
 // Shutdown
 process.on("SIGINT", () => {
   console.log("Shutting down server...");
+  safeCurrentSession();
   if (port && port.isOpen) {
     port.close(() => {
       console.log("Serial port closed");
