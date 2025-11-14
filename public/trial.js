@@ -159,7 +159,10 @@ const conditionMatrix = [
 
 function setupConditionMatrix(participantId) {
   /* participation_id_matrix = participantId; */
-  shuffledConditionMatrix = shuffleArray(conditionMatrix, participantId);
+  const shuffledOnce = shuffleArray(conditionMatrix, participantId);
+  // repeat Matrix 4 times
+  shuffledConditionMatrix = Array(4).flatMap(() => shuffledOnce);
+  //shuffledConditionMatrix = shuffleArray(conditionMatrix, participantId);
 }
 
 function choosePath() {
