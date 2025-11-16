@@ -103,6 +103,10 @@ screenSlider.addEventListener("mouseup", () => {
 });
 
 screenSlider.addEventListener("input", () => {
+  if (currentModeIndex >= shuffledConditionMatrix.length) {
+    console.warn("Slider input ignored — experiment finished.");
+    return;
+  }
   const picoValue = realTimeCalculation();
   /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
@@ -158,7 +162,7 @@ const conditionMatrix = [
 ];
 
 function setupConditionMatrix(participantId) {
-  /* participation_id_matrix = participantId; */
+  participation_id_matrix = participantId;
   const shuffledOnce = shuffleArray(conditionMatrix, participantId);
   // repeat Matrix 4 times
   shuffledConditionMatrix = Array(4).flatMap(() => shuffledOnce);
@@ -166,6 +170,11 @@ function setupConditionMatrix(participantId) {
 }
 
 function choosePath() {
+  if (currentModeIndex >= shuffledConditionMatrix.length) {
+    console.warn("choosePath() ignored — experiment finished.");
+    return;
+  }
+
   /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
   fetch(url + "array/" + currentCondition);
@@ -179,8 +188,9 @@ function choosePath() {
 function nextMode() {
   currentModeIndex++;
   if (currentModeIndex >= shuffledConditionMatrix.length) {
-    currentModeIndex = 0;
-    console.log("🔁 Restarting mode cycle");
+    alert("Thank you for your participations!.");
+    console.log("Script stopped after 64 runs.");
+    return;
   }
   choosePath();
 }
