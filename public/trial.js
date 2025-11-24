@@ -81,25 +81,33 @@ screenSlider.addEventListener("mousedown", () => {
 });
 //new Promise
 
-let mouseUpPromise = new Promise((resolve, reject) => {});
-screenSlider.addEventListener("mouseup", () => {
+let mouseUpPromise = new Promise((resolve, reject) => {
   if (screenSlider.value >= screenSlider.max) {
-    stopTime = Date.now();
-    fetch(url + "stopTime/" + stopTime);
-
-    setTimeout(() => {
-      screenSlider.value = 0;
-      intensity_slider.value = 0;
-      height_slider.value = 0;
-      nextMode();
-      screenSection.style.display = "none";
-      questionnaireSection.style.display = "block";
-    }, 100);
+    resolve();
   } else {
-    //Promise.then
-    alert("Please start from the beginning");
-    screenSlider.value = 0;
+    reject();
   }
+});
+screenSlider.addEventListener("mouseup", () => {
+  mouseUpPromise()
+    .then(() => {
+      stopTime = Date.now();
+      fetch(url + "stopTime/" + stopTime);
+
+      setTimeout(() => {
+        screenSlider.value = 0;
+        intensity_slider.value = 0;
+        height_slider.value = 0;
+        nextMode();
+        screenSection.style.display = "none";
+        questionnaireSection.style.display = "block";
+      }, 100);
+    })
+    .catch(() => {
+      //Promise.then
+      alert("Please start from the beginning");
+      screenSlider.value = 0;
+    });
 });
 
 screenSlider.addEventListener("input", () => {
