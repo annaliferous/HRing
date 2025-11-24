@@ -61,10 +61,7 @@ document.getElementById("calibration_send").addEventListener("click", () => {
   }
   calibrationValue = parseInt(calibrationSlider.value);
   participation_id = parseInt(participationIdInput.value);
-  /* participation_id_matrix =
-    parseInt(participationIdInput.value) % modeMatrix.length;
-    
- */
+
   // Setup condition matrix for this participant
   setupConditionMatrix(participation_id);
   // Send calibrationValue + participantId
@@ -82,7 +79,9 @@ screenSlider.addEventListener("mousedown", () => {
   startTime = Date.now();
   fetch(url + "startTime/" + startTime);
 });
+//new Promise
 
+let mouseUpPromise = new Promise((resolve, reject) => {});
 screenSlider.addEventListener("mouseup", () => {
   if (screenSlider.value >= screenSlider.max) {
     stopTime = Date.now();
@@ -97,6 +96,7 @@ screenSlider.addEventListener("mouseup", () => {
       questionnaireSection.style.display = "block";
     }, 100);
   } else {
+    //Promise.then
     alert("Please start from the beginning");
     screenSlider.value = 0;
   }
@@ -108,25 +108,14 @@ screenSlider.addEventListener("input", () => {
     return;
   }
   const picoValue = realTimeCalculation();
-  /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
+
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
   const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
-  const intensity = currentCondition[2]; // 25, 50, 75, 100
-  const maxValue = currentCondition[3]; // 100
 
   const endpoint = url + "main/" + picoValue;
   console.log(`📤 Mode "${currentMode}" → PicoValue: ${picoValue}`);
   fetch(endpoint).catch((err) => console.error("❌ Fetch error:", err));
 });
-
-// the Modes
-// https://damienmasson.com/tools/latin_square/
-const modeMatrix = [
-  [/* 0: */ "up", "down", "tartarus", "olymp"],
-  [/* 1: */ "down", "olymp", "up", "tartarus"],
-  [/* 2: */ "olymp", "tartarus", "down", "up"],
-  [/* 3: */ "tartarus", "up", "olymp", "down"],
-];
 
 //Random Seed creation
 function seededRandom(seed) {
@@ -162,11 +151,7 @@ const conditionMatrix = [
 ];
 
 function setupConditionMatrix(participantId) {
-  participation_id_matrix = participantId;
-  const shuffledOnce = shuffleArray(conditionMatrix, participantId);
-  // repeat Matrix 4 times
-  shuffledConditionMatrix = Array(4).flatMap(() => shuffledOnce);
-  //shuffledConditionMatrix = shuffleArray(conditionMatrix, participantId);
+  shuffledConditionMatrix = shuffleArray(conditionMatrix, participantId);
 }
 
 function choosePath() {
@@ -179,15 +164,18 @@ function choosePath() {
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
   fetch(url + "array/" + currentCondition);
   const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
-  const intensity = currentCondition[2]; // 25, 50, 75, 100
-  const maxValue = currentCondition[3]; // 100
   console.log(`🎯 Starting mode: ${currentMode}`);
   fetch(url + "mode/" + currentMode);
 }
 
 function nextMode() {
   currentModeIndex++;
+  arrayLoop = 4;
   if (currentModeIndex >= shuffledConditionMatrix.length) {
+    if (arrayLoop > 0) {
+      currentModeIndex = 0;
+      choosePath();
+    }
     alert("Thank you for your participations!.");
     console.log("Script stopped after 64 runs.");
     return;
@@ -381,4 +369,6 @@ height_send.addEventListener("click", () => {
 
   questionnaireSection.style.display = "none";
   screenSection.style.display = "block";
+
+  choosePath();
 });
