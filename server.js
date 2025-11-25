@@ -5,6 +5,7 @@ const cors = require("cors");
 const qs = require("qs");
 const { SerialPort } = require("serialport");
 const { ReadlineParser } = require("@serialport/parser-readline");
+const { rejects } = require("assert");
 
 const server = express();
 
@@ -86,6 +87,7 @@ let participation_id = "default";
 // Data Storage
 let dataStorage = [];
 let currentSession = {
+  /* id: 0, */
   mode: null,
   startTime: null,
   stopTime: null,
@@ -100,7 +102,9 @@ function addToFile(array) {}
 
 function safeCurrentSession() {
   if (currentSession.mode !== null) {
+    // compare id?? instead if mode
     const sessionArray = [
+      /* currentSession.id, */
       currentSession.mode,
       currentSession.startTime,
       currentSession.stopTime,
@@ -111,10 +115,13 @@ function safeCurrentSession() {
     ];
     dataStorage.push(sessionArray);
     console.log(`💾 Session saved:`, sessionArray);
-    console.log(`📊 Total sessions: ${dataStorage.length}`);
+    console.log(`Total sessions: ${dataStorage.length}`);
 
     addToFile(sessionArray);
   }
+
+  //add Promise
+  let safeArrayPromise = new Promise((reseolve, reject) => {});
 
   // Reset current session
   currentSession = {
@@ -135,7 +142,7 @@ server.get("/", (req, res) => {
 //cal Val handler
 server.get("save/main/:currentCalVal", (req, res) => {
   const currentCalVal = req.params.currentCalVal;
-  console.log(`📩 Received Cal Value: ${currentCalVal} `);
+  console.log(`Received Cal Value: ${currentCalVal} `);
 
   sendToPico(currentCalVal, "calVal");
 
@@ -195,7 +202,7 @@ server.get("/save/height/:height", (req, res) => {
 // Pico value handler
 server.get("/save/main/:value", (req, res) => {
   const picoValue = req.params.value;
-  console.log(`📩 Received Pico Value: ${picoValue} [mode: ${currentMode}]`);
+  console.log(`Received Pico Value: ${picoValue} [mode: ${currentMode}]`);
 
   sendToPico(picoValue, currentMode);
 

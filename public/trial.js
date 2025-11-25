@@ -204,8 +204,6 @@ function realTimeCalculation() {
   let actualPicoValue =
     min_pico_value + (sliderValue / 100) * (max_pico_value - min_pico_value);
 
-  /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
-  /* const currentMode = shuffledConditionMatrix[currentModeIndex][1]; */
   const currentMode = currentCondition[1]; // "up", "down", "olymp", or "tartarus"
   console.log(
     `🧮 Index: ${currentIndex} | Mode: ${currentMode} | Max Pico: ${max_pico_value} | Min Pico: ${min_pico_value}`
