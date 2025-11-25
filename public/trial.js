@@ -81,15 +81,15 @@ screenSlider.addEventListener("mousedown", () => {
 });
 //new Promise
 
-let mouseUpPromise = new Promise((resolve, reject) => {
-  if (screenSlider.value >= screenSlider.max) {
-    resolve();
-  } else {
-    reject();
-  }
-});
 screenSlider.addEventListener("mouseup", () => {
-  mouseUpPromise()
+  let mouseUpPromise = new Promise((resolve, reject) => {
+    if (screenSlider.value >= 99) {
+      resolve();
+    } else {
+      reject();
+    }
+  });
+  mouseUpPromise
     .then(() => {
       stopTime = Date.now();
       fetch(url + "stopTime/" + stopTime);
@@ -104,9 +104,10 @@ screenSlider.addEventListener("mouseup", () => {
       }, 100);
     })
     .catch(() => {
-      //Promise.then
       alert("Please start from the beginning");
-      screenSlider.value = 0;
+      setTimeout(() => {
+        screenSlider.value = 0;
+      }, 0);
     });
 });
 
