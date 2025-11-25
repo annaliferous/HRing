@@ -46,9 +46,9 @@ function initializeSerial() {
         resetMotors();
 
         // Listener for data from Pico
-        /* parser.on("data", (data) => {
+        parser.on("data", (data) => {
           console.log(`📥 Received from Pico: ${data}`);
-        }); */
+        });
       }
     });
 
@@ -87,7 +87,7 @@ let participation_id = "default";
 // Data Storage
 let dataStorage = [];
 let currentSession = {
-  /* id: 0, */
+  id: 0,
   mode: null,
   startTime: null,
   stopTime: null,
@@ -97,14 +97,22 @@ let currentSession = {
   height: null,
 };
 
+let safeArrayToFilePromise = new Promise((reseolve, reject) => {
+  /*  const oldSessionId = currentSession.id;
+  if() */
+});
+
 // Helper to write logs
-function addToFile(array) {}
+function addToFile(array) {
+  //first safe CalVal and PartID
+  /* safeArrayToFilePromise.then  */
+}
 
 function safeCurrentSession() {
   if (currentSession.mode !== null) {
     // compare id?? instead if mode
     const sessionArray = [
-      /* currentSession.id, */
+      currentSession.id,
       currentSession.mode,
       currentSession.startTime,
       currentSession.stopTime,
@@ -114,14 +122,12 @@ function safeCurrentSession() {
       currentSession.height,
     ];
     dataStorage.push(sessionArray);
-    console.log(`💾 Session saved:`, sessionArray);
+    console.log(`Session saved:`, sessionArray);
     console.log(`Total sessions: ${dataStorage.length}`);
+    currentSession.id++;
 
     addToFile(sessionArray);
   }
-
-  //add Promise
-  let safeArrayPromise = new Promise((reseolve, reject) => {});
 
   // Reset current session
   currentSession = {

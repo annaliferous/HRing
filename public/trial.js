@@ -50,9 +50,7 @@ calibrationSlider.addEventListener("input", () => {
   let currentCalVal = calibrationSlider.value;
   let sendCurrentCalVal = url + "main/" + currentCalVal;
   console.log(`Current CalVal "${currentCalVal}"`);
-  fetch(sendCurrentCalVal).catch((err) =>
-    console.error("❌ Fetch error:", err)
-  );
+  fetch(sendCurrentCalVal).catch((err) => console.error("Fetch error:", err));
 });
 document.getElementById("calibration_send").addEventListener("click", () => {
   if (!participationIdInput.value) {
@@ -122,8 +120,8 @@ screenSlider.addEventListener("input", () => {
   const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
 
   const endpoint = url + "main/" + picoValue;
-  console.log(`📤 Mode "${currentMode}" → PicoValue: ${picoValue}`);
-  fetch(endpoint).catch((err) => console.error("❌ Fetch error:", err));
+  console.log(`Mode "${currentMode}" → PicoValue: ${picoValue}`);
+  fetch(endpoint).catch((err) => console.error("Fetch error:", err));
 });
 
 //Random Seed creation
@@ -173,7 +171,7 @@ function choosePath() {
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
   fetch(url + "array/" + currentCondition);
   const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
-  console.log(`🎯 Starting mode: ${currentMode}`);
+  console.log(`Starting mode: ${currentMode}`);
   fetch(url + "mode/" + currentMode);
 }
 
