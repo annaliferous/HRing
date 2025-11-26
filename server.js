@@ -69,7 +69,7 @@ function sendToPico(value, mode) {
   const message = `${value}\n`;
   port.write(message, (err) => {
     if (err) console.error("Serial write failed:", err.message);
-    /* else console.log(`📤 Sent to Pico [mode: ${mode}] → ${value}`); */
+    /* else console.log(`Sent to Pico [mode: ${mode}] → ${value}`); */
   });
 }
 //reset Motors after every mode chnage
@@ -97,15 +97,59 @@ let currentSession = {
   height: null,
 };
 
-let safeArrayToFilePromise = new Promise((reseolve, reject) => {
+/* let safeArrayToFilePromise = new Promise((reseolve, reject) => {
   /*  const oldSessionId = currentSession.id;
-  if() */
-});
+  if() 
+}); */
+// File saving function
+function saveToFile(sessionData) {
+  return new Promise((resolve, reject) => {
+    try {
+      // Create filename with participation ID and timestamp
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const filename = `${participation_id}_session_${sessionData[0]}_${timestamp}.csv`;
+      const filepath = path.join(dataDir, filename);
+
+      // Create CSV header
+      const header =
+        "SessionID,Mode,StartTime,StopTime,Array,Canvas,Intensity,Height,CalibrationValue,ParticipationID\n";
+
+      // Create CSV row
+      const row =
+        [...sessionData, calibrationValue || "N/A", participation_id].join(
+          ","
+        ) + "\n";
+
+      // Check if file exists
+      const fileExists = fs.existsSync(filepath);
+
+      // Append or create file
+      const content = fileExists ? row : header + row;
+
+      fs.appendFile(filepath, content, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(filepath);
+        }
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
 
 // Helper to write logs
 function addToFile(array) {
   //first safe CalVal and PartID
   /* safeArrayToFilePromise.then  */
+  saveToFile(array)
+    .then((filepath) => {
+      console.log(`Session saved`);
+    })
+    .catch((err) => {
+      console.error("Failed to save session:", err);
+    });
 }
 
 function safeCurrentSession() {
