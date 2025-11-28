@@ -12,7 +12,7 @@ const url = "http://localhost:3000/save/";
 
 let startTime, stopTime;
 let calibrationValue = 0;
-let participation_id = 0;
+let participationId = 0;
 let participation_id_matrix = 0;
 let shuffledConditionMatrix = [];
 let currentModeIndex = 0;
@@ -43,12 +43,24 @@ document.addEventListener("mouseup", endDrag);
 document.addEventListener("touchmove", drag);
 document.addEventListener("touchend", endDrag);
 
+// Data Function to send data in the CORRECT order, with Promises
+function fetchData(endpoint) {
+  return new Promise((resolve, reject) => {
+    fetch(endpoint)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+}
+
 // Calibration
 calibrationSlider.addEventListener("input", () => {
   calibrationOutput.textContent = calibrationSlider.value;
-  //TODO
   let currentCalVal = calibrationSlider.value;
-  let sendCurrentCalVal = url + "main/" + currentCalVal;
+  let sendCurrentCalVal = url + "calibrationMain/" + currentCalVal;
   console.log(`Current CalVal "${currentCalVal}"`);
   fetch(sendCurrentCalVal).catch((err) => console.error("Fetch error:", err));
 });
@@ -58,26 +70,36 @@ document.getElementById("calibration_send").addEventListener("click", () => {
     return;
   }
   calibrationValue = parseInt(calibrationSlider.value);
-  participation_id = parseInt(participationIdInput.value);
+  participationId = parseInt(participationIdInput.value);
 
   // Setup condition matrix for this participant
-  setupConditionMatrix(participation_id);
+  setupConditionMatrix(participationId);
   // Send calibrationValue + participantId
-  fetch(url + "participationId/" + participation_id);
+  /* fetch(url + "participationId/" + participation_id);
   fetch(url + "calibrationValue/" + calibrationValue);
 
   choosePath();
 
   calibrationSection.style.display = "none";
-  screenSection.style.display = "block";
+  screenSection.style.display = "block"; */
+  fetchData(url + "participationId/" + participationId)
+    .then(() => fetchData(url + "calibrationValue/" + calibrationValue))
+    .then(() => choosePath())
+    .then(() => {
+      calibrationSection.style.display = "none";
+      screenSection.style.display = "block";
+    })
+    .catch((err) => {
+      console.error("Error in calibration setup:", err);
+    });
 });
 
 // Screen Slider
 screenSlider.addEventListener("mousedown", () => {
   startTime = Date.now();
-  fetch(url + "startTime/" + startTime);
+  /* fetch(url + "startTime/" + startTime); */
+  fetchData(url + "startTime/" + startTime);
 });
-//new Promise
 
 screenSlider.addEventListener("mouseup", () => {
   let mouseUpPromise = new Promise((resolve, reject) => {
@@ -88,6 +110,9 @@ screenSlider.addEventListener("mouseup", () => {
     }
   });
   mouseUpPromise
+    .then(() => {
+      choosePath();
+    })
     .then(() => {
       stopTime = Date.now();
       fetch(url + "stopTime/" + stopTime);
@@ -169,25 +194,39 @@ function choosePath() {
 
   /* const currentMode = modeMatrix[participation_id_matrix][currentModeIndex]; */
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
-  fetch(url + "array/" + currentCondition);
+  fetchData(url + "array/" + currentCondition);
   const currentMode = currentCondition[1]; // "up", "down", "olymp", "tartarus"
   console.log(`Starting mode: ${currentMode}`);
-  fetch(url + "mode/" + currentMode);
+  fetchData(url + "mode/" + currentMode);
 }
 
 function nextMode() {
-  currentModeIndex++;
+  if (currentModeIndex < shuffledConditionMatrix.length - 1) {
+    currentModeIndex++;
+    choosePath();
+    screenSection.style.display = "block";
+    questionnaireSection.style.display = "none";
+  } else {
+    alert("Experiment finished. Thank you!");
+    calibrationSection.style.display = "none";
+    screenSection.style.display = "none";
+    questionnaireSection.style.display = "none";
+  }
+  /*  currentModeIndex++;
+  //Der Index wird zu früh erhöht!!!!!!!!
+  // Fix!!!!!!!
   arrayLoop = 4;
   if (currentModeIndex >= shuffledConditionMatrix.length) {
     if (arrayLoop > 0) {
       currentModeIndex = 0;
-      choosePath();
+      /* choosePath(); */
+  /*
     }
     alert("Thank you for your participations!.");
     console.log("Script stopped after 64 runs.");
     return;
-  }
-  choosePath();
+  } */
+  /* choosePath(); */
 }
 
 // ===== CALCULATION =====
@@ -368,12 +407,17 @@ const height_slider = document.getElementById("height_slider");
 height_send.addEventListener("click", () => {
   let intensity = intensity_slider.value;
   let height = height_slider.value;
-  fetch(url + "canvas/" + selectedCanvas);
-  fetch(url + "intensity/" + intensity);
-  fetch(url + "height/" + height);
 
-  questionnaireSection.style.display = "none";
-  screenSection.style.display = "block";
+  // Send questionnaire data to backend
+  fetchData(url + "canvas/" + selectedCanvas)
+    .then(() => fetchData(url + "intensity/" + intensity))
+    .then(() => fetchData(url + "height/" + height))
+    .then(() => fetchData(url + "session"))
+    .then(() => {
+      nextMode();
+    })
 
-  choosePath();
+    .catch((err) => {
+      console.error("Error sending questionnaire data:", err);
+    });
 });

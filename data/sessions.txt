@@ -1,0 +1,8 @@
+Participation ID: 88
+Calibration Value: 19
+
+Sessions:
+Session 1: ["olymp","1764279420086","1764279421055","8,olymp,25,100","rise","0","0"]
+Session 2: ["down","1764279423884","1764279424547","6,down,75,100","fall","0","0"]
+Session 3: ["olymp","1764279427538","1764279428133","10,olymp,75,100","olymp","0","0"]
+Session 4: ["tartarus","1764279431948","1764279432549","12,tartarus,25,100","tartarus","0","0"]

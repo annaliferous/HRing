@@ -74,107 +74,21 @@ function sendToPico(value, mode) {
 }
 //reset Motors after every mode chnage
 function resetMotors() {
-  console.log("🔄 Resetting motors to 0...");
+  console.log("Resetting motors to 0...");
   sendToPico(0, currentMode);
 }
 
 // Data Storage
+let participationId = null;
 let calibrationValue = null;
 let currentMode = "unknown";
-let logFile = null;
-let participation_id = "default";
 
-// Data Storage
-let dataStorage = [];
-let currentSession = {
-  id: 0,
-  mode: null,
-  startTime: null,
-  stopTime: null,
-  array: null,
-  canvas: null,
-  intensity: null,
-  height: null,
-};
+//Data Storage
+let allSessions = [];
+let currentSession = createEmptySession();
 
-/* let safeArrayToFilePromise = new Promise((reseolve, reject) => {
-  /*  const oldSessionId = currentSession.id;
-  if() 
-}); */
-// File saving function
-function saveToFile(sessionData) {
-  return new Promise((resolve, reject) => {
-    try {
-      // Create filename with participation ID and timestamp
-      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const filename = `${participation_id}_session_${sessionData[0]}_${timestamp}.csv`;
-      const filepath = path.join(dataDir, filename);
-
-      // Create CSV header
-      const header =
-        "SessionID,Mode,StartTime,StopTime,Array,Canvas,Intensity,Height,CalibrationValue,ParticipationID\n";
-
-      // Create CSV row
-      const row =
-        [...sessionData, calibrationValue || "N/A", participation_id].join(
-          ","
-        ) + "\n";
-
-      // Check if file exists
-      const fileExists = fs.existsSync(filepath);
-
-      // Append or create file
-      const content = fileExists ? row : header + row;
-
-      fs.appendFile(filepath, content, (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(filepath);
-        }
-      });
-    } catch (err) {
-      reject(err);
-    }
-  });
-}
-
-// Helper to write logs
-function addToFile(array) {
-  //first safe CalVal and PartID
-  /* safeArrayToFilePromise.then  */
-  saveToFile(array)
-    .then((filepath) => {
-      console.log(`Session saved`);
-    })
-    .catch((err) => {
-      console.error("Failed to save session:", err);
-    });
-}
-
-function safeCurrentSession() {
-  if (currentSession.mode !== null) {
-    // compare id?? instead if mode
-    const sessionArray = [
-      currentSession.id,
-      currentSession.mode,
-      currentSession.startTime,
-      currentSession.stopTime,
-      currentSession.array,
-      currentSession.canvas,
-      currentSession.intensity,
-      currentSession.height,
-    ];
-    dataStorage.push(sessionArray);
-    console.log(`Session saved:`, sessionArray);
-    console.log(`Total sessions: ${dataStorage.length}`);
-    currentSession.id++;
-
-    addToFile(sessionArray);
-  }
-
-  // Reset current session
-  currentSession = {
+function createEmptySession() {
+  return {
     mode: null,
     startTime: null,
     stopTime: null,
@@ -185,12 +99,48 @@ function safeCurrentSession() {
   };
 }
 
+function safeSession() {
+  if (currentSession.mode !== null) {
+    const sessionArray = [
+      currentSession.mode,
+      currentSession.startTime,
+      currentSession.stopTime,
+      currentSession.array,
+      currentSession.canvas,
+      currentSession.intensity,
+      currentSession.height,
+    ];
+    allSessions.push(sessionArray);
+    console.log(`Session saved:`, sessionArray);
+    console.log(`Total sessions: ${allSessions.length}`);
+    currentSession = createEmptySession();
+  }
+}
+
+function safeAllSession() {
+  const filePath = path.join(dataDir, "sessions.txt");
+
+  // Build content
+  let content = "";
+  content += `Participation ID: ${participationId || "N/A"}\n`;
+  content += `Calibration Value: ${calibrationValue || "N/A"}\n\n`;
+
+  content += "Sessions:\n";
+  allSessions.forEach((session, idx) => {
+    content += `Session ${idx + 1}: ${JSON.stringify(session)}\n`;
+  });
+
+  // Write to file
+  fs.writeFileSync(filePath, content, "utf8");
+  console.log(`All sessions saved to ${filePath}`);
+}
+
 // Express Routes
 server.get("/", (req, res) => {
   res.send("Express server is up and running!");
 });
 //cal Val handler
-server.get("save/main/:currentCalVal", (req, res) => {
+server.get("/save/calibrationMain/:currentCalVal", (req, res) => {
   const currentCalVal = req.params.currentCalVal;
   console.log(`Received Cal Value: ${currentCalVal} `);
 
@@ -202,7 +152,7 @@ server.get("save/main/:currentCalVal", (req, res) => {
 server.get("/save/participationId/:id", (req, res) => {
   res.send("ParticipationId was send!");
   console.log(req.params.id);
-  participation_id = req.params.id;
+  participationId = req.params.id;
 });
 
 server.get("/save/calibrationValue/:calVal", (req, res) => {
@@ -210,6 +160,12 @@ server.get("/save/calibrationValue/:calVal", (req, res) => {
   console.log(req.params.calVal);
   calibrationValue = req.params.calVal;
 });
+server.get("/save/index/:index", (req, res) => {
+  res.send("index was send!");
+  console.log(req.params.index);
+  currentSession.index = req.params.index;
+});
+
 server.get("/save/startTime/:start", (req, res) => {
   res.send("startTime was send!");
   console.log(req.params.start);
@@ -227,7 +183,6 @@ server.get("/save/array/:array", (req, res) => {
 });
 server.get("/save/mode/:mode", (req, res) => {
   const newMode = req.params.mode;
-  safeCurrentSession();
   currentMode = newMode;
   currentSession.mode = newMode;
   console.log(`Mode changed → ${currentMode}`);
@@ -249,6 +204,11 @@ server.get("/save/height/:height", (req, res) => {
   currentSession.height = req.params.height;
   console.log(req.params.height);
 });
+server.get("/save/session", (req, res) => {
+  safeSession();
+  res.send("Session saved!");
+});
+
 // Pico value handler
 server.get("/save/main/:value", (req, res) => {
   const picoValue = req.params.value;
@@ -262,7 +222,8 @@ server.get("/save/main/:value", (req, res) => {
 // Shutdown
 process.on("SIGINT", () => {
   console.log("Shutting down server...");
-  safeCurrentSession();
+  safeAllSession();
+
   if (port && port.isOpen) {
     port.close(() => {
       console.log("Serial port closed");
