@@ -231,11 +231,10 @@ function nextMode() {
 // ===== CALCULATION =====
 function realTimeCalculation() {
   const sliderValue = parseInt(screenSlider.value);
-  const min_pico_value = calibrationValue;
-  /* const max_pico_value = 80 + calibrationValue; */
   const currentCondition = shuffledConditionMatrix[currentModeIndex];
   const currentIndex = currentCondition[0];
-  const max_pico_value = currentCondition[3] + calibrationValue;
+  const min_pico_value = Number(currentCondition[2]) + Number(calibrationValue);
+  const max_pico_value = Number(currentCondition[3]) + Number(calibrationValue);
 
   let actualPicoValue =
     min_pico_value + (sliderValue / 100) * (max_pico_value - min_pico_value);
