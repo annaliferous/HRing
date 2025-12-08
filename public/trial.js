@@ -155,7 +155,7 @@ function seededRandom(seed) {
 }
 
 function shuffleArray(array, seed) {
-  const arr = array.slice(); // copy
+  const arr = array.slice();
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(seededRandom(seed + i) * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
