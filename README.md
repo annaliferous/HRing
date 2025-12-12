@@ -11,8 +11,8 @@ Through cutaneous stimuli by skin deformation the HRing gives the illusion of a 
 npm start
 ```
 - To start Frontend (in Visual Studio Code):
-Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) Extension
-Click the **Go Live** Button on the botton right.
+  - Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) Extension.
+  - Click the **Go Live** Button on the botton right.
 
 ## Contributers
 
