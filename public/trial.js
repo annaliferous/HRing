@@ -119,8 +119,8 @@ screenSlider.addEventListener("mouseup", () => {
 
       setTimeout(() => {
         screenSlider.value = 0;
-        intensity_slider.value = 0;
-        height_slider.value = 0;
+        intensity_slider.value = 50;
+        height_slider.value = 50;
         screenSection.style.display = "none";
         questionnaireSection.style.display = "block";
       }, 100);
