@@ -22,7 +22,7 @@ npm start
 ```
 - To start Frontend (in Visual Studio Code):
   - Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) Extension.
-  - Click the **Go Live** Button on the botton right.
+  - Call Frontend with http://localhost:3000
 
 ## Contributers
 
